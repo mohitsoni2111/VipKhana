@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vip Khana</title>
+</head>
+<body>
+<div class="container">
+    {% with messages= get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{message}}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    This is your home Mr. {{first_name}}
+
+    <br><br>
+    <form action='/add_order' method='POST'>
+        <input type="submit" class="btnSubmit" value="Add Order" >
+    </form><br>
+
+    <form action='/list_order_stat1' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of all active orders" >
+    </form><br>
+
+    <form action='/list_order_stat6' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of all cancelled orders" >
+    </form><br>
+
+    <form action='/list_order_stat5' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of all completed orders" >
+    </form><br>
+
+    <form action='/list_order_stat2' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of orders with delivery guy" >
+    </form><br>
+
+    <form action='/list_order_stat3' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of tiffin received + payment done" >
+    </form><br>
+
+    <form action='/list_order_stat4' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of tiffin received + not payment done" >
+    </form><br>
+
+    <form action='/order_details' method='POST'>
+        <input type="text" class="form-control" placeholder="Order Id" name="order_id">
+        <input type="submit" class="btnSubmit" value="Get Order Details" >
+    </form><br>
+
+    <br>
+    <form action='/logout' method='POST'>
+        <input type="submit" class="btnSubmit" value="Logout" >
+    </form><br><br>
+
+
+</div>
+</body>
+</html>

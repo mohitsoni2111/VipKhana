@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List of all orders</title>
+</head>
+<body>
+<div class="container">
+    This is your home Mr. {{first_name}}
+    <br>
+
+    <form action='/login' method='POST'>
+        <input type="submit" class="btnSubmit" value="Home" >
+    </form><br><br>
+
+    <h2>{{header}}</h2>
+    <table style="border-type:solid, border-width:1px">
+        <tr>
+            <th> Location ID </th>
+            <th>Order Id</th>
+            <th>Number of tiffins</th>
+            <th>Name</th>
+            <th>Phone Number</th>
+            <th>Address</th>
+            <th>Address Remarks</th>
+            <th>Order Remarks</th>
+            <th>Order Time</th>
+            <th>Cancel Order</th>
+        </tr>
+
+        {% for order in orders %}
+            <tr>
+                <td>{{ order['locality_id'] }}</td>
+                <td>{{ order['_id'] }}</td>
+                <td>{{ order['no_of_tiffin'] }}</td>
+                <td>{{ order['cust_name'] }}</td>
+                <td>{{ order['phone_number'] }}</td>
+                <td>{{ order['street'] }}</td>
+                <td>{{ order['address_remarks'] }}</td>
+                <td>{{ order['order_remarks'] }}</td>
+                <td>{{ order['order_date'] }}</td>
+                <td>
+                    <form action='/cancel_order' method='POST'>
+                        <input type="submit" class="btnSubmit" value="Cancel" >
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+
+    </table>
+
+
+
+</div>
+</body>
+</html>

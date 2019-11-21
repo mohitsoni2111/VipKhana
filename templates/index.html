@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to Vip Khana</title>
+</head>
+<body>
+<div class="container">
+    {% if error %}
+        <p><b>Error: {{error}}</b></p>
+    {% endif %}
+    <form action='/login' method='POST'>
+        <input type="text" class="form-control" placeholder="Username" name="username">
+        <input type="password" class="form-control" placeholder="Password" name="password">
+        <input type="submit" class="btnSubmit" value="Login" >
+    </form>
+</div>
+</body>
+</html>

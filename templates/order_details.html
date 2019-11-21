@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Details</title>
+</head>
+<body>
+<div class="container">
+    This is your home Mr. {{first_name}}
+    <br>
+    <form action='/login' method='POST'>
+        <input type="submit" class="btnSubmit" value="Home" >
+    </form><br><br>
+
+    <table style="border-type:solid, border-width:1px">
+        <tr>
+            <th> Order Id </th>
+            <th>Order Status Change</th>
+            <th>Last Update</th>
+        </tr>
+
+        {% for log in order_log %}
+            <tr>
+                <td>{{ log['order_id'] }}</td>
+                <td>{{ status_enum[log['order_current_stat']] }}</td>
+                <td>{{ log['_id'] }}</td>
+            </tr>
+        {% endfor %}
+
+    </table>
+</div>
+</body>
+</html>
