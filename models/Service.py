@@ -53,7 +53,7 @@ class Service:
     # #################################################################################################
     #
 
-    # return      1- no user found, 2- successful login, 3- password mismatch
+        # return      1- no user found, 2- successful login, 3- password mismatch
     def logging_in(self, username, password):
         result = Database.find_one(collection=self.login_table, query={"_id": username})
         if result is None:
@@ -64,7 +64,8 @@ class Service:
             return 3
 
     def get_first_name(self, username):
-        return Database.find_one(collection=self.user_table, query={"_id": username})['first_name']
+        result = Database.find_one(collection=self.user_table, query={"_id": username})
+        return None if result is None else result['first_name']
     #
     #
     #

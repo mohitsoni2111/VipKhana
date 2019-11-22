@@ -19,7 +19,6 @@ status_enum = {
         7: 'Order cancelled by user',
         8: 'Order cancelled by Vip Khana'
     }
-
 # #################################################################################################
 # 1. LOGIN & LOGOUT MODULE                                                                        #
 # #################################################################################################
@@ -32,7 +31,12 @@ def start():
         if session['username'] == 'admin':
             return render_template('home_admin.html', first_name='admin')
         else:
-            return render_template('home.html', first_name=service.get_first_name(session['username']))
+            first_name = service.get_first_name(session['username'])
+            if first_name is None:
+                flash('User details not found, please contact administrator')
+                return render_template('home.html', first_name='')
+            else:
+                return render_template('home.html', first_name=first_name)
     else:
         return render_template('index.html')
 #
@@ -45,20 +49,32 @@ def login():
             if session['username'] == 'admin':
                 return render_template('home_admin.html', first_name='admin')
             else:
-                return render_template('home.html', first_name=session['first_name'])
+                first_name = service.get_first_name(session['username'])
+                if first_name is None:
+                    flash('User details not found, please contact administrator')
+                    return render_template('home.html', first_name='')
+                else:
+                    return render_template('home.html', first_name=first_name)
         else:
-            username = request.form['username']
-            password = request.form['password']
+            username = str(request.form['username'])
+            password = str(request.form['password'])
             login_flag = service.logging_in(username=username, password=password)
             if login_flag == 1:
+                flash('Username is incorrect, Please try again')
                 return render_template('index.html')
             elif login_flag == 3:
+                flash('Password is incorrect, Please try again')
                 return render_template('index.html')
             elif login_flag == 2:
                 session['username'] = username
-                session['first_name'] = service.get_first_name(session['username'])
-                return render_template('home.html', first_name=session['first_name'])
+                first_name = service.get_first_name(session['username'])
+                if first_name is None:
+                    flash('User details not found, please contact administrator')
+                    return render_template('home.html', first_name='')
+                else:
+                    return render_template('home.html', first_name=first_name)
             else:
+                flash('Something went wrong, really really wrong!!')
                 return render_template('index.html')
 #
 #
@@ -67,7 +83,7 @@ def login():
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.pop('username', None)
-    session.pop('first_name', None)
+    flash('Successfully logged out')
     return render_template('index.html')
 #
 #
