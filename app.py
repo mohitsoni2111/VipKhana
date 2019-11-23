@@ -1,4 +1,7 @@
+from models.Database import Database
 from models.Order import Order
+from models.Address import Address
+from models.Customer import Customer
 from models.Service import Service
 from datetime import timedelta, datetime
 from flask import Flask, render_template, flash, request, session
@@ -82,6 +85,7 @@ def login():
 # B. Logout Method
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
+    print(Database.find_one(collection='locality', query={'name': 'Sector 13'}))
     session.pop('username', None)
     flash('Successfully logged out')
     return render_template('index.html')
@@ -98,124 +102,139 @@ def logout():
 # Add Order
 @app.route('/add_order', methods=['GET', 'POST'])
 def add_order():
-    return render_template('add_order.html',
-                           order_id=service.seq_order_id(),
-                           locality_list=service.get_locality_list()
-                           )
+    if 'username' in session:
+        return render_template('add_order.html',
+                               order_id=service.get_sequence_value(1),
+                               locality_list=service.getlist(2),
+                               address_list=service.getlist(3),
+                               customer_list=service.getlist(4),
+                               first_name=service.get_first_name(session['username'])
+                               )
+    else:
+        return render_template('index.html')
 
 
 @app.route('/adding_order', methods=['GET', 'POST'])
 def adding_order():
-    if request.form['loc_id'] == '1.0' or request.form['loc_id'] == '1':
-        locality_id = service.add_new_locality(request.form['locality'])
-        if locality_id == -1:
-            flash("not Added")
-            return render_template("home.html", first_name=session['first_name'])
-    else:
-        locality_id = request.form['loc_id']
+    if 'username' in session:
+        # Getting Locality
+        if str(request.form['loc_id']) == '1.0':
+            locality_id = service.add_locality(str(request.form['locality']).lower())
+            if locality_id == -1:
+                flash("Error in adding a new locality, contact admin for this.")
+                return render_template("home.html", first_name=service.get_first_name(session['username']))
+        else:
+            locality_id = int(request.form['loc_id'])
 
-    order = Order(
-        order_id=request.form['order_id'],
-        cust_name=request.form['cust_name'],
-        phone_number=request.form['phone_number'],
-        no_of_tiffin=request.form['no_of_tiffin'],
-        street=request.form['street'],
-        locality_id=locality_id,
-        address_remarks=request.form['address_remarks'],
-        order_remarks=request.form['order_remarks'],
-        order_date=datetime.now(),
-        status=1
-    )
-    if service.add_new_order(order.json()):
-        flash("Successfully Added")
-        return render_template("home.html", first_name=session['first_name'])
+        # Getting Address
+        if str(request.form['adr_id']) == '1.0':
+            address = Address(
+                address_id=service.get_sequence_value(3),
+                locality_id=locality_id,
+                line1=str(request.form['line1']),
+                line2=str(request.form['line2']),
+                line3=str(request.form['line3']),
+                remarks=str(request.form['address_remarks'])
+            )
+            address_id = service.add_address(address.json())
+            if address_id == -1:
+                flash('Error in adding a new address, contact admin for this.')
+                return render_template('home.html', first_name=service.get_first_name(session['username']))
+        else:
+            address_id = int(request.form['adr_id'])
+
+        # Getting Customer Details
+        if str(request.form['cust_id']) == '1.0':
+            customer = Customer(
+                customer_id=service.get_sequence_value(4),
+                first_name=str(request.form['first_name']),
+                last_name=str(request.form['last_name']),
+                gender=str(request.form['gender']),
+                phone_number=str(request.form['phone_number']),
+                remarks=str(request.form['customer_remarks'])
+            )
+            customer_id = service.add_customer(customer.json())
+            if customer_id == -1:
+                flash('Error in adding a new customer, contact admin for this.')
+                return render_template('home.html', first_name=service.get_first_name(session['username']))
+        else:
+            customer_id = int(request.form['cust_id'])
+
+        order = Order(
+            order_id=int(request.form['order_id']),
+            customer_id=customer_id,
+            address_id=address_id,
+            locality_id=locality_id,
+            created_by=str(session['username']),
+            quantity=int(request.form['quantity']),
+            order_date=datetime.now(),
+            lu_date=datetime.now(),
+            remarks=str(request.form['order_remarks']),
+            status=1
+        )
+        if service.add_order(order.json()):
+            flash("Successfully Added")
+            return render_template("home.html", first_name=service.get_first_name(session['username']))
+        else:
+            flash("not Added")
+            return render_template("home.html", first_name=service.get_first_name(session['username']))
     else:
-        flash("not Added")
-        return render_template("home.html", first_name=session['first_name'])
+        return render_template('index.html')
 
 # List Orders active
 @app.route('/list_order_stat1', methods=['GET', 'POST'])
 def list_order_stat1():
-    return render_template(
-        'list_order.html',
-        first_name=session['first_name'],
-        orders=service.list_orders_by_locality(1),
-        header='List of all Active Orders'
-    )
+    if 'username' in session:
+        return render_template(
+            'list_order.html',
+            first_name=service.get_first_name(session['username']),
+            orders=service.list_orders_by_locality(1),
+            header='List of all Active Orders',
+            delivery_boy_list=service.get_delivery_boy_list()
+        )
+    else:
+        return render_template('index.html')
 
-# List Orders Cancelled
-@app.route('/list_order_stat2', methods=['GET', 'POST'])
-def list_order_stat2():
-    return render_template(
-        'list_order.html',
-        first_name=session['first_name'],
-        orders=service.list_orders_by_locality(2),
-        header='List of all orders with delivery guy'
-    )
 
-# List Orders Cancelled
-@app.route('/list_order_stat3', methods=['GET', 'POST'])
-def list_order_stat3():
-    return render_template(
-        'list_order.html',
-        first_name=session['first_name'],
-        orders=service.list_orders_by_locality(3),
-        header='Tiffin received to customer and payment received to us'
-    )
+@app.route('/detailed_order', methods=['GET', 'POST'])
+def detailed_order():
+    if 'username' in session:
+        order_id = int(request.args.get('order_id'))
+        order = service.get_order_by_id(order_id)
 
-# List Orders Cancelled
-@app.route('/list_order_stat4', methods=['GET', 'POST'])
-def list_order_stat4():
-    return render_template(
-        'list_order.html',
-        first_name=session['first_name'],
-        orders=service.list_orders_by_locality(4),
-        header='Tiffin received to customer and payment not received to us'
-    )
-
-# List Orders Cancelled
-@app.route('/list_order_stat5', methods=['GET', 'POST'])
-def list_order_stat5():
-    return render_template(
-        'list_order.html',
-        first_name=session['first_name'],
-        orders=service.list_orders_by_locality(5),
-        header='Perfectly completed order'
-    )
-
-# List Orders Cancelled
-@app.route('/list_order_stat6', methods=['GET', 'POST'])
-def list_order_stat6():
-    return render_template(
-        'list_order.html',
-        first_name=session['first_name'],
-        orders=service.list_orders_by_locality(6),
-        header='Faulty tiffin received by Vip Khana'
-    )
-
-# List Orders Cancelled
-@app.route('/list_order_stat7', methods=['GET', 'POST'])
-def list_order_stat7():
-    return render_template(
-        'list_order.html',
-        first_name=session['first_name'],
-        orders=service.list_orders_by_locality(7),
-        header='Order cancelled by user'
-    )
+        return render_template(
+            'order_details.html',
+            first_name=service.get_first_name(session['username']),
+            order=order.json(),
+            customer_name=service.get_name_by_cust_id(order.customer_id),
+            customer_phone=service.get_pnum_by_cust_id(order.customer_id),
+            locality_name=service.get_loc_name_by_loc_id(order.locality_id),
+            address=service.get_address_by_id(order.address_id),
+            logs=service.get_order_logs(order.order_id),
+            status_enum=status_enum
+        )
+    else:
+        return render_template('index.html')
 
 
 @app.route('/order_details', methods=['GET', 'POST'])
 def list_order():
     order_id = int(request.form['order_id'])
     result = service.get_order_logs(order_id)
-    print(*result)
+    order = service.get_order_by_id(order_id)
+
     if result is None:
         flash("No such Order")
     else:
         return render_template(
             'order_details.html',
-            first_name=session['first_name'],
-            order_log=result,
+            first_name=service.get_first_name(session['username']),
+            order=order.json(),
+            customer_name=service.get_name_by_cust_id(order.customer_id),
+            customer_phone=service.get_pnum_by_cust_id(order.customer_id),
+            locality_name=service.get_loc_name_by_loc_id(order.locality_id),
+            address=service.get_address_by_id(order.address_id),
+            logs=service.get_order_logs(order.order_id),
             status_enum=status_enum
         )
 

@@ -12,14 +12,51 @@
         <input type="submit" class="btnSubmit" value="Home" >
     </form><br><br>
 
+    <b>Order Details:<br></b>
+    {% if order['_id'] != '' %}
+        <table>
+            <tr>
+                <td> Order ID</td>
+                <td>: {{ order['_id'] }}</td>
+            </tr>
+            <tr>
+                <td> Order Date</td>
+                <td>: {{ order['order_date'] }}</td>
+            </tr>
+            <tr>
+                <td> Number of tiffins</td>
+                <td>: {{ order['quantity'] }}</td>
+            </tr>
+            <tr>
+                <td> Customer Name </td>
+                <td>: {{ customer_name }}</td>
+            </tr>
+            <tr>
+                <td> Customer Phone Number</td>
+                <td>: {{ customer_phone }}</td>
+            </tr>
+            <tr>
+                <td> Address </td>
+                <td>: {{ address }}, {{ locality_name }}</td>
+            </tr>
+            <tr>
+                <td> Order Status </td>
+                <td>: {{ status_enum[order['status']] }}</td>
+            </tr>
+
+        </table> <br><br>
+    {% endif %}
+
+
+    <b>Order Logs:<br></b>
     <table style="border-type:solid, border-width:1px">
         <tr>
-            <th> Order Id </th>
-            <th>Order Status Change</th>
-            <th>Last Update</th>
+            <td>Order Id</td>
+            <td>Order Status Change</td>
+            <td>Last Update</td>
         </tr>
 
-        {% for log in order_log %}
+        {% for log in logs %}
             <tr>
                 <td>{{ log['order_id'] }}</td>
                 <td>{{ status_enum[log['order_current_stat']] }}</td>

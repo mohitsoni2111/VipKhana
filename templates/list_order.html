@@ -14,34 +14,39 @@
     </form><br><br>
 
     <h2>{{header}}</h2>
-    <table style="border-type:solid, border-width:1px">
+    <table>
         <tr>
-            <th> Location ID </th>
-            <th>Order Id</th>
-            <th>Number of tiffins</th>
-            <th>Name</th>
-            <th>Phone Number</th>
-            <th>Address</th>
-            <th>Address Remarks</th>
-            <th>Order Remarks</th>
-            <th>Order Time</th>
-            <th>Cancel Order</th>
+            <th> Order Id </th>
+            <th> Locality </th>
+            <th> Customer's Name </th>
+            <th> Phone Number </th>
+            <th> Order Date </th>
+            <th> Number of tiffin </th>
+            <th> More Detials </th>
+            <th> Assign Delivery </th>
         </tr>
 
         {% for order in orders %}
             <tr>
-                <td>{{ order['locality_id'] }}</td>
-                <td>{{ order['_id'] }}</td>
-                <td>{{ order['no_of_tiffin'] }}</td>
-                <td>{{ order['cust_name'] }}</td>
+                <td>{{ order['order_id'] }}</td>
+                <td>{{ order['locality_name'] }}</td>
+                <td>{{ order['customer_name'] }}</td>
                 <td>{{ order['phone_number'] }}</td>
-                <td>{{ order['street'] }}</td>
-                <td>{{ order['address_remarks'] }}</td>
-                <td>{{ order['order_remarks'] }}</td>
                 <td>{{ order['order_date'] }}</td>
+                <td>{{ order['quantity'] }}</td>
                 <td>
-                    <form action='/cancel_order' method='POST'>
-                        <input type="submit" class="btnSubmit" value="Cancel" >
+                    <a href ="{{ url_for('detailed_order', order_id=order['order_id']) }}">More Details</a>
+                </td>
+                <td>
+                    <form>
+                        <select name="adr_id">
+		                {% for boy in delivery_boy_list %}
+			                <option value="{{boy['username']}}">
+                                {{ boy['name'] }}
+                            </option>
+		                {% endfor %}
+	                </select>
+                        <input type="submit" class="btnSubmit" value="Assign" >
                     </form>
                 </td>
             </tr>

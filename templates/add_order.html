@@ -9,18 +9,40 @@
     <form action='/adding_order' method='POST'>
         <ul>
             <li>    <input type="text" class="form-control" value="{{order_id}}" name="order_id" readonly>          </li>
-            <li>    <input type="text" class="form-control" placeholder="Name of Customer" name="cust_name">        </li>
-            <li>    <input type="text" class="form-control" placeholder="Phone Number" name="phone_number">         </li>
-            <li>    <input type="text" class="form-control" placeholder="Number of tiffin" name="no_of_tiffin">     </li>
-            <li>    <input type="text" class="form-control" placeholder="Address Line 1" name="street">             </li>
+            <li>    <select name="cust_id">
+		                {% for customer in customer_list %}
+			                <option value="{{customer['_id']}}">
+                                {{ customer['first_name'] }} {{ customer['first_name'] }} {{ customer['phone_number'] }}
+                            </option>
+		                {% endfor %}
+	                </select>
+            </li>
+            <li>    <input type="text" class="form-control" placeholder="Phone Number" name="phone_number" maxlength="10">
+            </li>
+            <li>    <input type="text" class="form-control" placeholder="First Name" name="first_name">
+                    <input type="text" class="form-control" placeholder="Last Name" name="last_name">               </li>
+            <li>    <input type="text" class="form-control" placeholder="Gender" name="gender"> </li>
+            <li>    <input type="text" class="form-control" placeholder="Customer Remarks" name="customer_remarks"> </li>
+            <li>    <select name="adr_id">
+		                {% for address in address_list %}
+			                <option value="{{address['_id']}}">
+                                {{ address['line1'] }}, {{ address['line2'] }}, {{ address['line3'] }}
+                            </option>
+		                {% endfor %}
+	                </select>
+            </li>
+            <li>    <input type="text" class="form-control" placeholder="Address Line 1" name="line1">              </li>
+            <li>    <input type="text" class="form-control" placeholder="Address Line 2" name="line2">              </li>
+            <li>    <input type="text" class="form-control" placeholder="Address Line 3" name="line3">              </li>
             <li>    <select name="loc_id">
-		                {% for loc in locality_list %}
-			                <option value="{{loc['_id']}}">{{ loc['name'] }}</option>
+		                {% for locality in locality_list %}
+			                <option value="{{locality['_id']}}">{{ locality['name'] }}</option>
 		                {% endfor %}
 	                </select>
             </li>
             <li>    <input type="text" class="form-control" placeholder="Locality" name="locality">                 </li>
-            <li>    <input type="text" class="form-control" placeholder="Extra Address" name="address_remarks">     </li>
+            <li>    <input type="text" class="form-control" placeholder="Address Remarks" name="address_remarks">   </li>
+            <li>    <input type="text" class="form-control" placeholder="Number of tiffin" name="quantity">         </li>
             <li>    <input type="text" class="form-control" placeholder="Order Remarks" name="order_remarks">       </li>
         </ul>
         <input type="submit" class="btnSubmit" value="Add Order">
