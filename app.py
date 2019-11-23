@@ -118,7 +118,9 @@ def add_order():
 def adding_order():
     if 'username' in session:
         # Getting Locality
-        if str(request.form['loc_id']) == '1.0':
+        ram = request.form['loc_id']
+        print(ram)
+        if str(request.form['loc_id']) == '1.0' or int(request.form['loc_id']) == 1:
             locality_id = service.add_locality(str(request.form['locality']).lower())
             if locality_id == -1:
                 flash("Error in adding a new locality, contact admin for this.")
@@ -127,7 +129,7 @@ def adding_order():
             locality_id = int(request.form['loc_id'])
 
         # Getting Address
-        if str(request.form['adr_id']) == '1.0':
+        if str(request.form['adr_id']) == '1.0' or int(request.form['adr_id']) == 1:
             address = Address(
                 address_id=service.get_sequence_value(3),
                 locality_id=locality_id,
@@ -144,7 +146,7 @@ def adding_order():
             address_id = int(request.form['adr_id'])
 
         # Getting Customer Details
-        if str(request.form['cust_id']) == '1.0':
+        if str(request.form['cust_id']) == '1.0' or int(request.form['cust_id']) == 1:
             customer = Customer(
                 customer_id=service.get_sequence_value(4),
                 first_name=str(request.form['first_name']),
