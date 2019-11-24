@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <title>List of all orders</title>
 </head>
 <body>
@@ -13,43 +16,48 @@
         <input type="submit" class="btnSubmit" value="Home" >
     </form><br><br>
 
+
     <h2>{{header}}</h2>
-    <table>
-        <tr>
-            <th> Order Id </th>
-            <th> Locality </th>
-            <th> Customer's Name </th>
-            <th> Phone Number </th>
-            <th> Order Date </th>
-            <th> Number of tiffin </th>
-            <th> More Detials </th>
-            <th> Assign Delivery </th>
-        </tr>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col"> Order Id </th>
+                <th scope="col"> Locality </th>
+                <th scope="col"> Customer's Name </th>
+                <th scope="col"> Phone Number </th>
+                <th scope="col"> Order Date </th>
+                <th scope="col"> Number of tiffin </th>
+                <th scope="col"> More Details </th>
+                <th scope="col"> Assign Delivery </th>
+            </tr>
+        </thead>
 
         {% for order in orders %}
+        <tbody>
             <tr>
-                <td>{{ order['order_id'] }}</td>
+                <th scope="row">{{ order['order_id'] }}</th>
                 <td>{{ order['locality_name'] }}</td>
                 <td>{{ order['customer_name'] }}</td>
                 <td>{{ order['phone_number'] }}</td>
                 <td>{{ order['order_date'] }}</td>
                 <td>{{ order['quantity'] }}</td>
                 <td>
-                    <a href ="{{ url_for('detailed_order', order_id=order['order_id']) }}">More Details</a>
+                    <a href ="{{ url_for('detailed_order', order_id=order['order_id']) }}">Click here</a>
                 </td>
                 <td>
                     <form>
                         <select name="adr_id">
-		                {% for boy in delivery_boy_list %}
-			                <option value="{{boy['username']}}">
-                                {{ boy['name'] }}
-                            </option>
-		                {% endfor %}
-	                </select>
+                            {% for boy in delivery_boy_list %}
+                                <option value="{{boy['username']}}">
+                                    {{ boy['name'] }}
+                                </option>
+                            {% endfor %}
+                        </select>
                         <input type="submit" class="btnSubmit" value="Assign" >
                     </form>
                 </td>
             </tr>
+        <tbody>
         {% endfor %}
 
     </table>

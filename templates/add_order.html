@@ -2,51 +2,121 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/add_order.js') }}"></script>
     <title>Adding Order</title>
 </head>
 <body>
 <div class="container">
-    <form action='/adding_order' method='POST'>
-        <ul>
-            <li>    <input type="text" class="form-control" value="{{order_id}}" name="order_id" readonly>          </li>
-            <li>    <select name="cust_id">
-		                {% for customer in customer_list %}
-			                <option value="{{customer['_id']}}">
-                                {{ customer['first_name'] }} {{ customer['first_name'] }} {{ customer['phone_number'] }}
-                            </option>
-		                {% endfor %}
-	                </select>
-            </li>
-            <li>    <input type="text" class="form-control" placeholder="Phone Number" name="phone_number" maxlength="10">
-            </li>
-            <li>    <input type="text" class="form-control" placeholder="First Name" name="first_name">
-                    <input type="text" class="form-control" placeholder="Last Name" name="last_name">               </li>
-            <li>    <input type="text" class="form-control" placeholder="Gender" name="gender"> </li>
-            <li>    <input type="text" class="form-control" placeholder="Customer Remarks" name="customer_remarks"> </li>
-            <li>    <select name="adr_id">
-		                {% for address in address_list %}
-			                <option value="{{address['_id']}}">
-                                {{ address['line1'] }}, {{ address['line2'] }}, {{ address['line3'] }}
-                            </option>
-		                {% endfor %}
-	                </select>
-            </li>
-            <li>    <input type="text" class="form-control" placeholder="Address Line 1" name="line1">              </li>
-            <li>    <input type="text" class="form-control" placeholder="Address Line 2" name="line2">              </li>
-            <li>    <input type="text" class="form-control" placeholder="Address Line 3" name="line3">              </li>
-            <li>    <select name="loc_id">
-		                {% for locality in locality_list %}
-			                <option value="{{locality['_id']}}">{{ locality['name'] }}</option>
-		                {% endfor %}
-	                </select>
-            </li>
-            <li>    <input type="text" class="form-control" placeholder="Locality" name="locality">                 </li>
-            <li>    <input type="text" class="form-control" placeholder="Address Remarks" name="address_remarks">   </li>
-            <li>    <input type="text" class="form-control" placeholder="Number of tiffin" name="quantity">         </li>
-            <li>    <input type="text" class="form-control" placeholder="Order Remarks" name="order_remarks">       </li>
-        </ul>
-        <input type="submit" class="btnSubmit" value="Add Order">
-    </form>
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+
+        <form action='/adding_order' method='POST'>
+
+            <div class="form-group">
+                <label >Order ID</label>
+                <input type="text" readonly class="form-control" value="{{order_id}}" name="order_id">
+            </div>
+
+            <div class="form-group">
+                <label >Select Customer from list</label>
+                <select name="cust_id" id="cust_id" class="form-control" onChange="return setCustomerDetails({{customer_list}})">
+                    {% for customer in customer_list %}
+                        <option value="{{customer['_id']}}" id="{{ customer['phone_number'] }}">
+                            {{ customer['first_name'] }} {{ customer['last_name'] }} {{ customer['phone_number'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label >Phone Number</label>
+                <input type="text" class="form-control" name="phone_number" id="phone_number" maxlength="10">
+            </div>
+
+            <div class="form-group">
+                <label >Name</label>
+                <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name">
+                <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name">
+            </div>
+
+            <div class="form-group">
+                <label >Gender</label>
+                <input type="radio" name="gender" value="male" id="male" class="custom-control-input">
+                <label class="custom-control-label">Male</label>
+                <input type="radio" name="gender" value="female" id="female" class="custom-control-input">
+                <label class="custom-control-label">Female</label>
+            </div>
+
+            <div class="form-group">
+                <label >Customer Remarks</label>
+                <input type="text" class="form-control" name="customer_remarks" id="customer_remarks">
+            </div>
+
+            <div class="form-group">
+                <label >Select Customer from list</label>
+                <select name="adr_id" class="form-control">
+                    {% for address in address_list %}
+                        <option value="{{address['_id']}}">
+                            {{ address['line1'] }}, {{ address['line2'] }}, {{ address['line3'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label >Address Line 1</label>
+                <input type="text" class="form-control" name="line1">
+            </div>
+
+            <div class="form-group">
+                <label >Address Line 2</label>
+                <input type="text" class="form-control" name="line2">
+            </div>
+
+            <div class="form-group">
+                <label >Address Line 3</label>
+                <input type="text" class="form-control" name="line3">
+            </div>
+
+            <div class="form-group">
+                <label >Select Locality from list</label>
+                <select name="loc_id" class="form-control">
+                    {% for locality in locality_list %}
+                        <option value="{{locality['_id']}}">{{ locality['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label >Locality</label>
+                <input type="text" class="form-control" name="locality">
+            </div>
+
+            <div class="form-group">
+                <label >Address Remarks</label>
+                <input type="text" class="form-control" name="address_remarks">
+            </div>
+
+            <div class="form-group">
+                <label >Quantity of tiffin</label>
+                <input type="text" class="form-control" name="quantity">
+            </div>
+
+            <div class="form-group">
+                <label >Order Remarks</label>
+                <input type="text" class="form-control" name="order_remarks">
+            </div>
+
+            <div class="form-group">
+                <input type="submit" class="btnSubmit" value="Add Order">
+            </div>
+
+        </form>
+    </div>
+    <div class="col-sm-3"></div>
 </div>
 </body>
 </html>

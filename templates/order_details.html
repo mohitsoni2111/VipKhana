@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Order Details</title>
+    <link href="{{ url_for('static', filename='css/order_details.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/order_details.js') }}"></script>
 </head>
-<body>
+<body onload="changeClass({{order['status']}})">
 <div class="container">
     This is your home Mr. {{first_name}}
     <br>
@@ -25,7 +27,7 @@
             </tr>
             <tr>
                 <td> Number of tiffins</td>
-                <td>: {{ order['quantity'] }}</td>
+                <td>: {{ order['quantity'] }} <span id="123"> HI </span> </td>
             </tr>
             <tr>
                 <td> Customer Name </td>
@@ -47,6 +49,28 @@
         </table> <br><br>
     {% endif %}
 
+    <ol class="progtrckr" data-progtrckr-steps="5">
+        <li id="1" class="progtrckr-todo">Order Received</li>
+        <li id="2" class="progtrckr-todo">Order to Delivery Guy</li>
+        <li id="3" class="progtrckr-todo">Payment Received</li>
+        <li id="4" class="progtrckr-todo">Completed</li>
+        <li id="5" class="progtrckr-todo">Order Cancelled</li>
+
+    </ol><br><br>
+
+
+    Change status of order:<br>
+    <form action='/change_order_stat' method='POST'>
+        <input type="text" class="form-control" value=" {{order['_id'] }}" name="order_id" readonly>
+        <select name="new_status">
+            {% for key in status_enum.keys() %}
+                <option value="{{ key }}">
+                    {{ status_enum[key] }}
+                </option>
+            {% endfor %}
+        </select>
+        <input type="submit" class="btnSubmit" value="Change status" >
+    </form><br>
 
     <b>Order Logs:<br></b>
     <table style="border-type:solid, border-width:1px">

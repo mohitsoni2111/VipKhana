@@ -21,6 +21,7 @@ status_enum = {
         6: 'Faulty tiffin received by Vip Khana',
         7: 'Order cancelled by user',
         8: 'Order cancelled by Vip Khana'
+
     }
 # #################################################################################################
 # 1. LOGIN & LOGOUT MODULE                                                                        #
@@ -202,16 +203,16 @@ def list_order_stat1():
 def detailed_order():
     if 'username' in session:
         order_id = int(request.args.get('order_id'))
-        order = service.get_order_by_id(order_id)
+        order = service.get_order(order_id)
 
         return render_template(
             'order_details.html',
             first_name=service.get_first_name(session['username']),
             order=order.json(),
-            customer_name=service.get_name_by_cust_id(order.customer_id),
-            customer_phone=service.get_pnum_by_cust_id(order.customer_id),
-            locality_name=service.get_loc_name_by_loc_id(order.locality_id),
-            address=service.get_address_by_id(order.address_id),
+            customer_name=service.get_customer_name(order.customer_id),
+            customer_phone=service.get_customer_phone(order.customer_id),
+            locality_name=service.get_locality_name(order.locality_id),
+            address=service.get_address(order.address_id),
             logs=service.get_order_logs(order.order_id),
             status_enum=status_enum
         )
@@ -223,7 +224,7 @@ def detailed_order():
 def list_order():
     order_id = int(request.form['order_id'])
     result = service.get_order_logs(order_id)
-    order = service.get_order_by_id(order_id)
+    order = service.get_order(order_id)
 
     if result is None:
         flash("No such Order")
@@ -232,13 +233,24 @@ def list_order():
             'order_details.html',
             first_name=service.get_first_name(session['username']),
             order=order.json(),
-            customer_name=service.get_name_by_cust_id(order.customer_id),
-            customer_phone=service.get_pnum_by_cust_id(order.customer_id),
-            locality_name=service.get_loc_name_by_loc_id(order.locality_id),
-            address=service.get_address_by_id(order.address_id),
+            customer_name=service.get_customer_name(order.customer_id),
+            customer_phone=service.get_customer_phone(order.customer_id),
+            locality_name=service.get_locality_name(order.locality_id),
+            address=service.get_address(order.address_id),
             logs=service.get_order_logs(order.order_id),
             status_enum=status_enum
         )
+
+
+@app.route('/change_order_stat', methods=['GET', 'POST'])
+def change_order_stat():
+    new_status = int(request.form['new_status'])
+    order_id = int(request.form['order_id'])
+    if service.change_order_status(order_id, new_status):
+        flash('Status successfully changed')
+    else:
+        flash('Status not changed')
+    return render_template("home.html", first_name=service.get_first_name(session['username']))
 
 
 if __name__ == '__main__':
