@@ -1,11 +1,12 @@
+from werkzeug.utils import redirect
+
 from models.Database import Database
 from models.Order import Order
 from models.Address import Address
 from models.Customer import Customer
 from models.Service import Service
 from datetime import timedelta, datetime
-from flask import Flask, render_template, flash, request, session
-
+from flask import Flask, render_template, flash, request, session, url_for
 
 app = Flask(__name__)
 service = Service()
@@ -127,7 +128,7 @@ def adding_order():
                 flash("Error in adding a new locality, contact admin for this.")
                 return render_template("home.html", first_name=service.get_first_name(session['username']))
         else:
-            locality_id = int(request.form['loc_id'])
+            locality_id = int(str(request.form['loc_id']))
 
         # Getting Address
         if str(request.form['adr_id']) == '1.0' or int(request.form['adr_id']) == 1:
@@ -191,9 +192,41 @@ def list_order_stat1():
         return render_template(
             'list_order.html',
             first_name=service.get_first_name(session['username']),
+            flag='delivery',
             orders=service.list_orders_by_locality(1),
             header='List of all Active Orders',
             delivery_boy_list=service.get_delivery_boy_list()
+        )
+    else:
+        return render_template('index.html')
+
+
+# List Orders with delivery guy
+@app.route('/list_order_stat2', methods=['GET', 'POST'])
+def list_order_stat2():
+    if 'username' in session:
+        return render_template(
+            'list_order.html',
+            first_name=service.get_first_name(session['username']),
+            flag='payment',
+            orders=service.list_orders_by_locality(2),
+            header='List of all orders in delivery'
+        )
+    else:
+        return render_template('index.html')
+
+
+# List Orders with or without payment
+@app.route('/list_order_stat34', methods=['GET', 'POST'])
+def list_order_stat34():
+    if 'username' in session:
+        return render_template(
+            'list_order.html',
+            first_name=service.get_first_name(session['username']),
+            flag='after payment',
+            orders3=service.list_orders_by_locality(3),
+            orders4=service.list_orders_by_locality(4),
+            header='List of all orders with customer'
         )
     else:
         return render_template('index.html')
@@ -251,6 +284,42 @@ def change_order_stat():
     else:
         flash('Status not changed')
     return render_template("home.html", first_name=service.get_first_name(session['username']))
+
+
+@app.route('/order_to_delivery', methods=['GET', 'POST'])
+def order_to_delivery():
+    if 'username' in session:
+        delivery_boy_id = request.form['del_boy_id']
+        print(delivery_boy_id)
+        order_id = int(request.form['order_id'])
+        if service.add_delivery(order_id, delivery_boy_id):
+            flash('Delivery assigned')
+            return redirect(url_for('order_to_delivery'))
+        else:
+            flash('Delivery not assigned')
+            return redirect(url_for('order_to_delivery'))
+    else:
+        return render_template('index.html')
+
+
+@app.route('/order_to_payment', methods=['GET', 'POST'])
+def order_to_payment():
+    if 'username' in session:
+        payment_type = int(request.form['payment_type'])
+        order_id = int(request.form['order_id'])
+        if payment_type == 1:
+            if service.add_payment_order(order_id):
+                flash('Payment recorded')
+                return redirect(url_for('order_to_payment'))
+            else:
+                flash('Action failed')
+                return redirect(url_for('order_to_payment'))
+        else:
+            if service.change_order_status(order_id, 4):
+                flash('Order Updated')
+                return redirect(url_for('order_to_payment'))
+    else:
+        return render_template('index.html')
 
 
 if __name__ == '__main__':

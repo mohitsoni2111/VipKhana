@@ -1,6 +1,4 @@
 from datetime import datetime
-from models.Address import Address
-from models.Customer import Customer
 from models.Database import Database
 from models.Order import Order
 
@@ -217,7 +215,8 @@ class Service:
                         'customer_name': self.get_customer_name(order['customer_id']),
                         'locality_name': self.get_locality_name(order['locality_id']),
                         'order_date': order['order_date'],
-                        'quantity': order['quantity']
+                        'quantity': order['quantity'],
+                        'status': order['status']
                     }
                 )
         return final_list
@@ -227,12 +226,10 @@ class Service:
         order.status = new_status
         order.lu_date = datetime.now()
         result = Database.update(collection=self.order, query={'_id': order_id}, new_data=order.json())
-        print(result)
         if result['updatedExisting'] is False:
             return False
         else:
             return True if self.update_order_log(order_id, new_status) else False
-
 
     #
     #
@@ -254,7 +251,7 @@ class Service:
         first_name = self.get_element_by_id('first_name', customer_id, 4)
         last_name = self.get_element_by_id('last_name', customer_id, 4)
         if first_name is not None and last_name is not None:
-            return str(first_name) + ' ' + str(first_name)
+            return str(first_name) + ' ' + str(last_name)
         else:
             return '-1'
 
@@ -320,7 +317,73 @@ class Service:
     #
     #
     # #################################################################################################
-    # H. Sequences Table                                                                                  #
+    # H. Delivery Table                                                                                  #
+    # #################################################################################################
+    #
+    def add_delivery(self, order_id, delivery_boy_id):
+        delivery_id = self.get_sequence_value(5)
+        if delivery_id != -1:
+            result = Database.insert(collection=self.delivery,
+                                     query={
+                                         '_id': delivery_id,
+                                         'order_id': order_id,
+                                         'delivery_boy_id': delivery_boy_id,
+                                         'delivery_date': datetime.now(),
+                                         'delivery_status': 1
+                                     }
+                                     )
+            if result is not None:
+                self.set_sequence_value(5)
+                if self.change_order_status(order_id, 2):
+                    return True
+                else:
+                    Database.delete(collection=self.delivery, query={'_id': delivery_id})
+                    self.rev_sequence_value(5)
+                    return False
+            else:
+                return False
+        else:
+            return False
+
+    #
+    #
+    #
+    #
+    #
+    # #################################################################################################
+    # I. Payment Table                                                                                  #
+    # #################################################################################################
+    #
+    def add_payment_order(self, order_id):
+        payment_id = self.get_sequence_value(6)
+        print(payment_id)
+        result = Database.insert(
+            collection=self.payment,
+            query={
+                '_id': payment_id,
+                'payment_type': 11,
+                'order_id': order_id,
+                'payment_date': datetime.now(),
+                'amount': self.get_db_variable('tiffin_rate')
+            }
+        )
+        if result is not None:
+            if self.change_order_status(order_id, 3):
+                return True
+            else:
+                Database.delete(collection=self.payment, query={'_id': payment_id})
+                self.rev_sequence_value(6)
+                return False
+        else:
+            return False
+
+    #
+    #
+    #
+    #
+    #
+    # #################################################################################################
+    # J. Sequences Table                                                                                  #
     # #################################################################################################
     #
     # Sequences must set to get and use mentality. Use the current value and then update.
@@ -332,8 +395,12 @@ class Service:
             table = self.locality_seq_table
         elif flag == 3:
             table = self.address_seq_table
-        else:
+        elif flag == 3:
             table = self.customer_seq_table
+        elif flag == 3:
+            table = self.payment_seq_table
+        else:
+            table = self.payment_seq_table
         result = Database.find_one(collection=table, query={})
         if result is not None and result['num'] is not None:
             return int(result['num'])
@@ -348,9 +415,29 @@ class Service:
             table = self.locality_seq_table
         elif flag == 3:
             table = self.address_seq_table
-        else:
+        elif flag == 3:
             table = self.customer_seq_table
+        elif flag == 3:
+            table = self.payment_seq_table
+        else:
+            table = self.payment_seq_table
         Database.update(collection=table, query={}, new_data={'$inc': {'num': 1}})
+
+    # This will decrement the value of sequence
+    def rev_sequence_value(self, flag):
+        if flag == 1:
+            table = self.order_seq_table
+        elif flag == 2:
+            table = self.locality_seq_table
+        elif flag == 3:
+            table = self.address_seq_table
+        elif flag == 3:
+            table = self.customer_seq_table
+        elif flag == 3:
+            table = self.payment_seq_table
+        else:
+            table = self.payment_seq_table
+        Database.update(collection=table, query={}, new_data={'$inc': {'num': -1}})
 
     #
     #
@@ -358,7 +445,7 @@ class Service:
     #
     #
     # #################################################################################################
-    # I. Generic Methods                                                                                  #
+    # K. Generic Methods                                                                                  #
     # #################################################################################################
     #
     def getlist(self, flag):
@@ -418,3 +505,7 @@ class Service:
             return result[element] if result[element] is not None else None
         else:
             return None
+
+    def get_db_variable(self, variable_name):
+        result = Database.find_one(collection='variables', query={'_id': variable_name})
+        return result['value'] if result is not None else None

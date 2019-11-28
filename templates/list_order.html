@@ -3,12 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link href="{{ url_for('static', filename='css/list_order.css') }}" rel="stylesheet">
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/list_order.js') }}"></script>
     <title>List of all orders</title>
 </head>
 <body>
 <div class="container">
+    <!-- Flashing messages -->
+	{% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+        {% if messages %}
+			{% for category, message in messages %}
+				<div class="alert alert-warning alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+
+	<!-- Rest of the content -->
     This is your home Mr. {{first_name}}
     <br>
 
@@ -45,16 +63,84 @@
                     <a href ="{{ url_for('detailed_order', order_id=order['order_id']) }}">Click here</a>
                 </td>
                 <td>
-                    <form>
-                        <select name="adr_id">
-                            {% for boy in delivery_boy_list %}
-                                <option value="{{boy['username']}}">
-                                    {{ boy['name'] }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <input type="submit" class="btnSubmit" value="Assign" >
-                    </form>
+                    {% if flag == "delivery" %}
+                        <form action='/order_to_delivery' method='POST'>
+                            <select name="del_boy_id">
+                                {% for boy in delivery_boy_list %}
+                                    <option value="{{boy['username']}}">
+                                        {{ boy['name'] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <input type="hidden" name="order_id" value="{{ order['order_id'] }}">
+                            <input type="submit" class="btnSubmit" value="Assign" >
+                        </form>
+                    {% endif %}
+                    {% if flag == "payment" %}
+                        <form action='/order_to_payment' method='POST'>
+                            <select name="payment_type">
+                                <option value="1">Payment Done</option>
+                                <option value="2">Payment Pending</option>
+                            </select>
+                            <input type="hidden" name="order_id" value="{{ order['order_id'] }}">
+                            <input type="submit" class="btnSubmit" value="Assign" >
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        <tbody>
+        {% endfor %}
+
+        {% for order in orders3 %}
+        <tbody>
+            <tr>
+                <th scope="row">{{ order['order_id'] }}</th>
+                <td>{{ order['locality_name'] }}</td>
+                <td>{{ order['customer_name'] }}</td>
+                <td>{{ order['phone_number'] }}</td>
+                <td>{{ order['order_date'] }}</td>
+                <td>{{ order['quantity'] }}  {{order['status']}}</td>
+                <td>
+                    <a href ="{{ url_for('detailed_order', order_id=order['order_id']) }}">Click here</a>
+                </td>
+                <td>
+                    {% if flag == "after payment" %}
+                        <form action='/order_to_final' method='POST'>
+                            <select name="order_type">
+                                <option value="1">Tiffin is back without damage</option>
+                                <option value="2">Tiffin is back with damage</option>
+                            </select>
+                            <input type="hidden" name="order_id" value="{{ order['order_id'] }}">
+                            <input type="submit" class="btnSubmit" value="Assign" >
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        <tbody>
+        {% endfor %}
+        {% for order in orders4 %}
+        <tbody class="{{order['status']}}">
+            <tr class="class4">
+                <th scope="row">{{ order['order_id'] }}</th>
+                <td>{{ order['locality_name'] }}</td>
+                <td>{{ order['customer_name'] }}</td>
+                <td>{{ order['phone_number'] }}</td>
+                <td>{{ order['order_date'] }}</td>
+                <td>{{ order['quantity'] }}</td>
+                <td>
+                    <a href ="{{ url_for('detailed_order', order_id=order['order_id']) }}">Click here</a>
+                </td>
+                <td>
+                    {% if flag == "after payment" %}
+                        <form action='/order_to_payment' method='POST'>
+                            <select name="payment_type">
+                                <option value="1">Payment Done</option>
+                                <option value="2">Payment Pending</option>
+                            </select>
+                            <input type="hidden" name="order_id" value="{{ order['order_id'] }}">
+                            <input type="submit" class="btnSubmit" value="Assign" >
+                        </form>
+                    {% endif %}
                 </td>
             </tr>
         <tbody>

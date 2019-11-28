@@ -9,16 +9,22 @@
 </head>
 <body>
 <div class="container">
-    {% with messages= get_flashed_messages() %}
+    <!-- Flashing messages -->
+	{% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
         {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{message}}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+			{% for category, message in messages %}
+				<div class="alert alert-warning alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
 
+	<!-- Rest of the content -->
     This is your home Mr. {{first_name}}
 
     <br><br>
@@ -28,6 +34,14 @@
 
     <form action='/list_order_stat1' method='POST'>
         <input type="submit" class="btnSubmit" value="List of all active orders" >
+    </form><br>
+
+    <form action='/list_order_stat2' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of all orders with delivery guy" >
+    </form><br>
+
+    <form action='/list_order_stat34' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of all orders with customer" >
     </form><br>
 
     <form action='/order_details' method='POST'>

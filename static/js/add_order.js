@@ -4,12 +4,10 @@ function setCustomerDetails(customer){
     var selectedOption = ddl.options[ddl.selectedIndex];
     var phone = selectedOption.getAttribute("id");
 
-
     var phone_number = document.getElementById("phone_number");
     var first_name = document.getElementById("first_name");
     var last_name = document.getElementById("last_name");
     var customer_remarks = document.getElementById("customer_remarks");
-
 
     for(var i = 1; i < customer.length; i++) {
         var obj = customer[i];
@@ -47,5 +45,68 @@ function setCustomerDetails(customer){
             document.getElementById("male").readOnly = false;
             document.getElementById("female").readOnly = false;
         }
+}
 
+
+
+
+function setAddressDetails(address){
+
+    var ddl = document.getElementById("adr_id");
+    var selectedOption = ddl.options[ddl.selectedIndex];
+    var address_id = selectedOption.getAttribute("id");
+
+    var line1 = document.getElementById("line1");
+    var line2 = document.getElementById("line2");
+    var line3 = document.getElementById("line3");
+    var address_remarks = document.getElementById("address_remarks");
+
+    for(var i = 1; i < address.length; i++) {
+        var obj = address[i];
+        if (obj._id == address_id){
+            line1.value = obj.line1;
+            document.getElementById("line1").readOnly = true;
+            line2.value = obj.line2;
+            document.getElementById("line2").readOnly = true;
+            line3.value = obj.line3;
+            document.getElementById("line3").readOnly = true;
+            address_remarks.value = obj.address_remarks;
+            document.getElementById("address_remarks").readOnly = true;
+        }
+    }
+    var obj = address[0];
+        if (obj._id == address_id){
+            line1.value = "";
+            document.getElementById("line1").readOnly = false;
+            line2.value = "";
+            document.getElementById("line2").readOnly = false;
+            line3.value = "";
+            document.getElementById("line3").readOnly = false;
+            address_remarks.value = "";
+            document.getElementById("address_remarks").readOnly = false;
+        }
+}
+
+
+
+function setLocalityDetails(locality_list){
+
+    var ddl = document.getElementById("loc_id");
+    var selectedOption = ddl.options[ddl.selectedIndex];
+    var locality_id = selectedOption.getAttribute("id");
+
+    var locality = document.getElementById("locality");
+
+    for(var i = 1; i < locality_list.length; i++) {
+        var obj = locality_list[i];
+        if (obj._id == locality_id){
+            locality.value = obj.name;
+            document.getElementById("locality").readOnly = true;
+        }
+    }
+    var obj = locality_list[0];
+        if (obj._id == locality_id){
+            locality.value = "";
+            document.getElementById("locality").readOnly = false;
+        }
 }
