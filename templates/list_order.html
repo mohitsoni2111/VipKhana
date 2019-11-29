@@ -65,7 +65,7 @@
                 <td>
                     {% if flag == "delivery" %}
                         <form action='/order_to_delivery' method='POST'>
-                            <select name="del_boy_id">
+                            <select name="delboy_id">
                                 {% for boy in delivery_boy_list %}
                                     <option value="{{boy['username']}}">
                                         {{ boy['name'] }}

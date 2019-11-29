@@ -284,8 +284,8 @@ class Service:
                 if boy is not None and boy['_id'] is not None and boy['first_name'] is not None:
                     boy_list.append(
                         {
-                            'username': boy['_id'],
-                            'name': boy['first_name']
+                            'username': int(boy['_id']),
+                            'name': str(boy['first_name'])
                         }
                     )
         return boy_list
@@ -395,10 +395,10 @@ class Service:
             table = self.locality_seq_table
         elif flag == 3:
             table = self.address_seq_table
-        elif flag == 3:
+        elif flag == 4:
             table = self.customer_seq_table
-        elif flag == 3:
-            table = self.payment_seq_table
+        elif flag == 5:
+            table = self.delivery_seq_table
         else:
             table = self.payment_seq_table
         result = Database.find_one(collection=table, query={})
@@ -415,10 +415,10 @@ class Service:
             table = self.locality_seq_table
         elif flag == 3:
             table = self.address_seq_table
-        elif flag == 3:
+        elif flag == 4:
             table = self.customer_seq_table
-        elif flag == 3:
-            table = self.payment_seq_table
+        elif flag == 5:
+            table = self.delivery_seq_table
         else:
             table = self.payment_seq_table
         Database.update(collection=table, query={}, new_data={'$inc': {'num': 1}})
@@ -431,10 +431,10 @@ class Service:
             table = self.locality_seq_table
         elif flag == 3:
             table = self.address_seq_table
-        elif flag == 3:
+        elif flag == 4:
             table = self.customer_seq_table
-        elif flag == 3:
-            table = self.payment_seq_table
+        elif flag == 5:
+            table = self.delivery_seq_table
         else:
             table = self.payment_seq_table
         Database.update(collection=table, query={}, new_data={'$inc': {'num': -1}})

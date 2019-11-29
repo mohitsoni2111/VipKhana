@@ -289,15 +289,15 @@ def change_order_stat():
 @app.route('/order_to_delivery', methods=['GET', 'POST'])
 def order_to_delivery():
     if 'username' in session:
-        delivery_boy_id = request.form['del_boy_id']
-        print(delivery_boy_id)
-        order_id = int(request.form['order_id'])
-        if service.add_delivery(order_id, delivery_boy_id):
-            flash('Delivery assigned')
-            return redirect(url_for('order_to_delivery'))
-        else:
-            flash('Delivery not assigned')
-            return redirect(url_for('order_to_delivery'))
+        if request.method == 'POST':
+            delivery_boy_id = int(request.form['delboy_id'])
+            order_id = int(request.form['order_id'])
+            if service.add_delivery(order_id, delivery_boy_id):
+                flash('Delivery assigned')
+                return redirect(url_for('list_order_stat1'))
+            else:
+                flash('Delivery not assigned')
+                return redirect(url_for('list_order_stat1'))
     else:
         return render_template('index.html')
 
@@ -310,14 +310,14 @@ def order_to_payment():
         if payment_type == 1:
             if service.add_payment_order(order_id):
                 flash('Payment recorded')
-                return redirect(url_for('order_to_payment'))
+                return redirect(url_for('list_order_stat2'))
             else:
                 flash('Action failed')
-                return redirect(url_for('order_to_payment'))
+                return redirect(url_for('list_order_stat2'))
         else:
             if service.change_order_status(order_id, 4):
                 flash('Order Updated')
-                return redirect(url_for('order_to_payment'))
+                return redirect(url_for('list_order_stat2'))
     else:
         return render_template('index.html')
 
