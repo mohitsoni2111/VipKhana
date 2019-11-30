@@ -44,10 +44,26 @@
         <input type="submit" class="btnSubmit" value="List of all orders with customer" >
     </form><br>
 
+    <form action='/list_order_history' method='POST'>
+        <input type="submit" class="btnSubmit" value="List of all completed orders" >
+    </form><br>
+
     <form action='/order_details' method='POST'>
         <input type="text" class="form-control" placeholder="Order Id" name="order_id">
         <input type="submit" class="btnSubmit" value="Get Order Details" >
     </form><br>
+
+    <form action='/delivery_details' method='POST'>
+        <select name="delboy_id">
+            {% for boy in delivery_boy_list %}
+                <option value="{{boy['username']}}">
+                    {{ boy['name'] }}
+                </option>
+            {% endfor %}
+        </select>
+        <input type="submit" class="btnSubmit" value="Get Delivery Details" >
+    </form><br>
+
 
     <br>
     <form action='/logout' method='POST'>

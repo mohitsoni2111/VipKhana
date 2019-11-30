@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Order Details</title>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/list_order.js') }}"></script>
     <link href="{{ url_for('static', filename='css/order_details.css') }}" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/order_details.js') }}"></script>
 </head>
@@ -32,36 +36,40 @@
 
     <b>Order Details:<br></b>
     {% if order['_id'] != '' %}
-        <table>
+        <table class="table table-bordered"><tbody>
             <tr>
                 <td> Order ID</td>
-                <td>: {{ order['_id'] }}</td>
+                <td>{{ order['_id'] }}</td>
             </tr>
             <tr>
                 <td> Order Date</td>
-                <td>: {{ order['order_date'] }}</td>
+                <td>{{ order['order_date'] }}</td>
             </tr>
             <tr>
                 <td> Number of tiffins</td>
-                <td>: {{ order['quantity'] }} <span id="123"> HI </span> </td>
+                <td>{{ order['quantity'] }} </td>
             </tr>
             <tr>
                 <td> Customer Name </td>
-                <td>: {{ customer_name }}</td>
+                <td>{{ customer_name }}</td>
             </tr>
             <tr>
                 <td> Customer Phone Number</td>
-                <td>: {{ customer_phone }}</td>
+                <td>{{ customer_phone }}</td>
             </tr>
             <tr>
                 <td> Address </td>
-                <td>: {{ address }}, {{ locality_name }}</td>
+                <td>{{ address }}, {{ locality_name }}</td>
             </tr>
             <tr>
                 <td> Order Status </td>
-                <td>: {{ status_enum[order['status']] }}</td>
+                <td>{{ status_enum[order['status']] }}</td>
             </tr>
-
+            <tr>
+                <td> Delivery boy </td>
+                <td>{{ delivery_guy_name }}</td>
+            </tr>
+        </tbody>
         </table> <br><br>
     {% endif %}
 
@@ -86,23 +94,25 @@
             {% endfor %}
         </select>
         <input type="submit" class="btnSubmit" value="Change status" >
-    </form><br>
+    </form><br><br><br>
 
     <b>Order Logs:<br></b>
-    <table style="border-type:solid, border-width:1px">
+    <table class="table"><thead class="thead-dark">
         <tr>
-            <td>Order Id</td>
-            <td>Order Status Change</td>
-            <td>Last Update</td>
-        </tr>
+            <th scope="col">Order Id</th>
+            <th scope="col">Order Status Change</td>
+            <th scope="col">Last Update</td>
+        </tr></thead>
 
+        <tbody>
         {% for log in logs %}
             <tr>
-                <td>{{ log['order_id'] }}</td>
+                <th scope="row">{{ log['order_id'] }}</>
                 <td>{{ status_enum[log['order_current_stat']] }}</td>
                 <td>{{ log['_id'] }}</td>
             </tr>
         {% endfor %}
+        </tbody>
 
     </table>
 </div>

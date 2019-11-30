@@ -35,7 +35,7 @@
     </form><br><br>
 
 
-    <h2>{{header}}</h2>
+    <h2>{{header}}{{delivery_guy_name}}</h2>
     <table class="table table-bordered">
         <thead class="thead-dark">
             <tr>
@@ -60,7 +60,11 @@
                 <td>{{ order['order_date'] }}</td>
                 <td>{{ order['quantity'] }}</td>
                 <td>
-                    <a href ="{{ url_for('detailed_order', order_id=order['order_id']) }}">Click here</a>
+                    {% if flag == "completed" %}
+                        <a href ="{{ url_for('detailed_order', order_id=order['order_id'], flag=5) }}">Click here</a>
+                    {% else %}
+                        <a href ="{{ url_for('detailed_order', order_id=order['order_id'], flag=1) }}">Click here</a>
+                    {% endif %}
                 </td>
                 <td>
                     {% if flag == "delivery" %}
@@ -86,6 +90,10 @@
                             <input type="submit" class="btnSubmit" value="Assign" >
                         </form>
                     {% endif %}
+                    {% if flag == "delivery boy list" %}
+
+                    {% endif %}
+
                 </td>
             </tr>
         <tbody>
@@ -99,7 +107,7 @@
                 <td>{{ order['customer_name'] }}</td>
                 <td>{{ order['phone_number'] }}</td>
                 <td>{{ order['order_date'] }}</td>
-                <td>{{ order['quantity'] }}  {{order['status']}}</td>
+                <td>{{ order['quantity'] }}</td>
                 <td>
                     <a href ="{{ url_for('detailed_order', order_id=order['order_id']) }}">Click here</a>
                 </td>

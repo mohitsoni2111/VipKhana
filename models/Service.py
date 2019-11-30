@@ -221,6 +221,30 @@ class Service:
                 )
         return final_list
 
+    def list_orders_by_delivery_guy(self, delivery_boy_id):
+        order_id_list = [
+            int(i['order_id']) for i in Database.find(
+                collection=self.delivery,
+                query={"delivery_boy_id": delivery_boy_id})
+            if i is not None and i['delivery_boy_id'] is not None]
+
+        final_list = []
+        for i in order_id_list:
+            order = Database.find_one(collection=self.order, query={"_id": i})
+            if order is not None:
+                final_list.append(
+                    {
+                        'order_id': order['_id'],
+                        'phone_number': self.get_customer_phone(order['customer_id']),
+                        'customer_name': self.get_customer_name(order['customer_id']),
+                        'locality_name': self.get_locality_name(order['locality_id']),
+                        'order_date': order['order_date'],
+                        'quantity': order['quantity'],
+                        'status': order['status']
+                    }
+                )
+        return final_list
+
     def change_order_status(self, order_id, new_status):
         order = self.get_order(order_id)
         order.status = new_status
@@ -290,6 +314,18 @@ class Service:
                     )
         return boy_list
 
+    def get_delivery_boy_name(self, order_id):
+        result = Database.find_one(collection=self.delivery, query={'order_id': order_id})
+        if result is not None:
+            delivery_boy_id = result['delivery_boy_id']
+            if delivery_boy_id is not None:
+                delivery_boy_name = self.get_element_by_id('first_name', delivery_boy_id, 8)
+                if delivery_boy_name is not None:
+                    return str(delivery_boy_name)
+        else:
+            return 'Delivery boy not assign'
+        return 'Delivery boy not assign'
+
     #
     #
     #
@@ -355,8 +391,12 @@ class Service:
     # #################################################################################################
     #
     def add_payment_order(self, order_id):
+        amount = 0
         payment_id = self.get_sequence_value(6)
-        print(payment_id)
+        quantity = self.get_element_by_id('quantity', order_id, 1)
+        rate = self.get_db_variable('tiffin_rate')
+        if quantity is not None and rate is not None:
+            amount = int(rate)*int(quantity)
         result = Database.insert(
             collection=self.payment,
             query={
@@ -364,18 +404,16 @@ class Service:
                 'payment_type': 11,
                 'order_id': order_id,
                 'payment_date': datetime.now(),
-                'amount': self.get_db_variable('tiffin_rate')
+                'amount': amount
             }
         )
         if result is not None:
             if self.change_order_status(order_id, 3):
-                return True
+                self.set_sequence_value(6)
             else:
                 Database.delete(collection=self.payment, query={'_id': payment_id})
                 self.rev_sequence_value(6)
-                return False
-        else:
-            return False
+        return amount
 
     #
     #
@@ -509,3 +547,51 @@ class Service:
     def get_db_variable(self, variable_name):
         result = Database.find_one(collection='variables', query={'_id': variable_name})
         return result['value'] if result is not None else None
+
+    def map_order_to_tiffin(self, order_id, tiffin_number):
+        Database.update(
+            collection='order_tiffin_map',
+            query={'_id': tiffin_number},
+            new_data={'order_id': order_id, '_id': tiffin_number}
+        )
+        return True
+
+    def add_order_history(self, order):
+        Database.insert(collection='order_history', query=order)
+        Database.delete(collection='order', query={'_id': order['_id']})
+
+    def list_order_history(self):
+        final_list = []
+        result = [i for i in Database.find(collection='order_history', query={}) if i is not None]
+        if len(result) != 0:
+            for order in sorted(result, key=lambda i: int(i['locality_id'])):
+                final_list.append(
+                    {
+                        'order_id': order['_id'],
+                        'phone_number': self.get_customer_phone(order['customer_id']),
+                        'customer_name': self.get_customer_name(order['customer_id']),
+                        'locality_name': self.get_locality_name(order['locality_id']),
+                        'order_date': order['order_date'],
+                        'quantity': order['quantity'],
+                        'status': order['status']
+                    }
+                )
+        return final_list
+
+    def get_order_from_history(self, order_id):
+        result = Database.find_one(collection='order_history', query={'_id': order_id})
+        if result is not None:
+            return Order(
+                order_id=result['_id'],
+                order_date=result['order_date'],
+                address_id=result['address_id'],
+                locality_id=result['locality_id'],
+                created_by=result['created_by'],
+                customer_id=result['customer_id'],
+                quantity=result['quantity'],
+                lu_date=result['lu_date'],
+                remarks=result['remarks'],
+                status=result['status'],
+            )
+        else:
+            return None

@@ -1,6 +1,4 @@
 from werkzeug.utils import redirect
-
-from models.Database import Database
 from models.Order import Order
 from models.Address import Address
 from models.Customer import Customer
@@ -34,14 +32,14 @@ status_enum = {
 def start():
     if 'username' in session:
         if session['username'] == 'admin':
-            return render_template('home_admin.html', first_name='admin')
+            return render_template('home_admin.html', first_name='admin',delivery_boy_list=service.get_delivery_boy_list())
         else:
             first_name = service.get_first_name(session['username'])
             if first_name is None:
                 flash('User details not found, please contact administrator')
-                return render_template('home.html', first_name='')
+                return render_template('home.html', first_name='',delivery_boy_list=service.get_delivery_boy_list())
             else:
-                return render_template('home.html', first_name=first_name)
+                return render_template('home.html', first_name=first_name,delivery_boy_list=service.get_delivery_boy_list())
     else:
         return render_template('index.html')
 #
@@ -57,9 +55,9 @@ def login():
                 first_name = service.get_first_name(session['username'])
                 if first_name is None:
                     flash('User details not found, please contact administrator')
-                    return render_template('home.html', first_name='')
+                    return render_template('home.html', first_name='',delivery_boy_list=service.get_delivery_boy_list())
                 else:
-                    return render_template('home.html', first_name=first_name)
+                    return render_template('home.html', first_name=first_name,delivery_boy_list=service.get_delivery_boy_list())
         else:
             username = str(request.form['username'])
             password = str(request.form['password'])
@@ -75,9 +73,9 @@ def login():
                 first_name = service.get_first_name(session['username'])
                 if first_name is None:
                     flash('User details not found, please contact administrator')
-                    return render_template('home.html', first_name='')
+                    return render_template('home.html', first_name='',delivery_boy_list=service.get_delivery_boy_list())
                 else:
-                    return render_template('home.html', first_name=first_name)
+                    return render_template('home.html', first_name=first_name,delivery_boy_list=service.get_delivery_boy_list())
             else:
                 flash('Something went wrong, really really wrong!!')
                 return render_template('index.html')
@@ -87,7 +85,6 @@ def login():
 # B. Logout Method
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    print(Database.find_one(collection='locality', query={'name': 'Sector 13'}))
     session.pop('username', None)
     flash('Successfully logged out')
     return render_template('index.html')
@@ -126,7 +123,7 @@ def adding_order():
             locality_id = service.add_locality(str(request.form['locality']).lower())
             if locality_id == -1:
                 flash("Error in adding a new locality, contact admin for this.")
-                return render_template("home.html", first_name=service.get_first_name(session['username']))
+                return render_template("home.html", first_name=service.get_first_name(session['username']),delivery_boy_list=service.get_delivery_boy_list())
         else:
             locality_id = int(str(request.form['loc_id']))
 
@@ -143,7 +140,7 @@ def adding_order():
             address_id = service.add_address(address.json())
             if address_id == -1:
                 flash('Error in adding a new address, contact admin for this.')
-                return render_template('home.html', first_name=service.get_first_name(session['username']))
+                return render_template('home.html', first_name=service.get_first_name(session['username']),delivery_boy_list=service.get_delivery_boy_list())
         else:
             address_id = int(request.form['adr_id'])
 
@@ -160,7 +157,7 @@ def adding_order():
             customer_id = service.add_customer(customer.json())
             if customer_id == -1:
                 flash('Error in adding a new customer, contact admin for this.')
-                return render_template('home.html', first_name=service.get_first_name(session['username']))
+                return render_template('home.html', first_name=service.get_first_name(session['username']),delivery_boy_list=service.get_delivery_boy_list())
         else:
             customer_id = int(request.form['cust_id'])
 
@@ -178,10 +175,10 @@ def adding_order():
         )
         if service.add_order(order.json()):
             flash("Successfully Added")
-            return render_template("home.html", first_name=service.get_first_name(session['username']))
+            return render_template("home.html", first_name=service.get_first_name(session['username']),delivery_boy_list=service.get_delivery_boy_list())
         else:
             flash("not Added")
-            return render_template("home.html", first_name=service.get_first_name(session['username']))
+            return render_template("home.html", first_name=service.get_first_name(session['username']),delivery_boy_list=service.get_delivery_boy_list())
     else:
         return render_template('index.html')
 
@@ -232,11 +229,30 @@ def list_order_stat34():
         return render_template('index.html')
 
 
+# List Orders completed
+@app.route('/list_order_history', methods=['GET', 'POST'])
+def list_order_history():
+    if 'username' in session:
+        return render_template(
+            'list_order.html',
+            first_name=service.get_first_name(session['username']),
+            flag='completed',
+            orders=service.list_order_history(),
+            header='List of all completed orders'
+        )
+    else:
+        return render_template('index.html')
+
+
 @app.route('/detailed_order', methods=['GET', 'POST'])
 def detailed_order():
     if 'username' in session:
         order_id = int(request.args.get('order_id'))
-        order = service.get_order(order_id)
+        flag = int(request.args.get('flag'))
+        if flag == 5:
+            order = service.get_order_from_history(order_id)
+        else:
+            order = service.get_order(order_id)
 
         return render_template(
             'order_details.html',
@@ -247,7 +263,8 @@ def detailed_order():
             locality_name=service.get_locality_name(order.locality_id),
             address=service.get_address(order.address_id),
             logs=service.get_order_logs(order.order_id),
-            status_enum=status_enum
+            status_enum=status_enum,
+            delivery_guy_name=service.get_delivery_boy_name(order.order_id)
         )
     else:
         return render_template('index.html')
@@ -261,6 +278,7 @@ def list_order():
 
     if result is None:
         flash("No such Order")
+        render_template('home.html',delivery_boy_list=service.get_delivery_boy_list())
     else:
         return render_template(
             'order_details.html',
@@ -271,8 +289,32 @@ def list_order():
             locality_name=service.get_locality_name(order.locality_id),
             address=service.get_address(order.address_id),
             logs=service.get_order_logs(order.order_id),
-            status_enum=status_enum
+            status_enum=status_enum,
+            delivery_guy_name=service.get_delivery_boy_name(order.order_id)
         )
+
+
+@app.route('/delivery_details', methods=['GET', 'POST'])
+def delivery_details():
+    delivery_boy_id = int(request.form['delboy_id'])
+    return render_template(
+        'list_order.html',
+        first_name=service.get_first_name(session['username']),
+        flag='delivery boy list',
+        orders=service.list_orders_by_delivery_guy(delivery_boy_id),
+        header='List of all orders for Delivery man- ',
+        delivery_guy_name=service.get_element_by_id('first_name', delivery_boy_id, 8)
+    )
+
+
+@app.route('/order_to_tiffin', methods=['GET', 'POST'])
+def order_to_tiffin():
+    tiffin_number = int(request.form['tiffin_number'])
+    order_id = int(request.form['order_id'])
+    if service.map_order_to_tiffin(order_id, tiffin_number):
+        flash('Order Mapped')
+    else:
+        flash('Not Done bro')
 
 
 @app.route('/change_order_stat', methods=['GET', 'POST'])
@@ -283,7 +325,11 @@ def change_order_stat():
         flash('Status successfully changed')
     else:
         flash('Status not changed')
-    return render_template("home.html", first_name=service.get_first_name(session['username']))
+    return render_template(
+        "home.html",
+        first_name=service.get_first_name(session['username']),
+        delivery_boy_list=service.get_delivery_boy_list()
+    )
 
 
 @app.route('/order_to_delivery', methods=['GET', 'POST'])
@@ -308,8 +354,10 @@ def order_to_payment():
         payment_type = int(request.form['payment_type'])
         order_id = int(request.form['order_id'])
         if payment_type == 1:
-            if service.add_payment_order(order_id):
-                flash('Payment recorded')
+            amount = service.add_payment_order(order_id)
+            if amount != 0:
+                message_on_flash = 'Payment recorded of '+ str(amount)
+                flash(message_on_flash)
                 return redirect(url_for('list_order_stat2'))
             else:
                 flash('Action failed')
@@ -318,6 +366,25 @@ def order_to_payment():
             if service.change_order_status(order_id, 4):
                 flash('Order Updated')
                 return redirect(url_for('list_order_stat2'))
+    else:
+        return render_template('index.html')
+
+
+@app.route('/order_to_final', methods=['GET', 'POST'])
+def order_to_final():
+    if 'username' in session:
+        order_type = int(request.form['order_type'])
+        order_id = int(request.form['order_id'])
+        if order_type == 2:
+            if service.change_order_status(order_id, 6):
+                flash('Order Updated')
+                return redirect(url_for('list_order_stat34'))
+        else:
+            if service.change_order_status(order_id, 5):
+                order = service.get_order(order_id)
+                service.add_order_history(order.json())
+                flash('Congratulations Order is completed')
+                return redirect(url_for('list_order_stat34'))
     else:
         return render_template('index.html')
 
