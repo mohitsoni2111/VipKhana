@@ -2,16 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Vip Khana</title>
+    <title>Homepage</title>
+
+	<!-- Boot strap linknig-->
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+	<!-- Custom CSS linking -->
+
+
 </head>
 <body>
 <div class="container">
-    <!-- Flashing messages -->
+
+	<!-- Flashing messages -->
 	{% with messages = get_flashed_messages(with_categories=true) %}
-    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
         {% if messages %}
 			{% for category, message in messages %}
-				<div class="alert alert-warning alert-dismissible" role="alert">
+				<div class="alert alert-warning alert-dismissible" role="alert" id="close_flash_message">
 					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
@@ -21,11 +30,37 @@
 		{% endif %}
 	{% endwith %}
 
+
+
+
+
 	<!-- Rest of the content -->
-    This is your home Mr. {{first_name}}
-    <form action='/logout' method='POST'>
-        <input type="submit" class="btnSubmit" value="Logout" >
-    </form>
+    <div>
+
+		<div>
+			Total income this month: {{inc_curr_mon}}
+			Total expense this month: {{exp_curr_mon}}
+		</div>
+
+		<br>
+		<form action='/logout' method='POST'>
+			<input type="submit" class="btn btn-danger" value="Logout" >
+		</form><br><br>
+
+	</div>
 </div>
+
+
+
+
+<!-- Custom JS code -->
+<script type="text/javascript">
+	document.getElementById("close_flash_message").onclick = function() {
+		document.getElementById("close_flash_message").style.display = "none";
+}
+</script>
+<!-- Custom JS linking -->
+
+
 </body>
 </html>

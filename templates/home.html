@@ -2,10 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <title>Vip Khana</title>
+
+	<!-- Boot strap linking-->
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <title>Vip Khana</title>
+
+	<!-- Custom CSS linking -->
+	<link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
+
 </head>
 <body>
 <div class="container">
@@ -72,5 +78,21 @@
 
 
 </div>
+
+
+
+
+
+<!-- Custom JS code -->
+<script type="text/javascript">
+	<!-- CLosing the flash messages -->
+	document.getElementById("close_flash_message").onclick = function() {
+		document.getElementById("close_flash_message").style.display = "none";
+}
+
+</script>
+
+
+
 </body>
 </html>

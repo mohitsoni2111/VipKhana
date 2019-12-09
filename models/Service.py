@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from models.Database import Database
 from models.Order import Order
 
@@ -595,3 +595,35 @@ class Service:
             )
         else:
             return None
+
+# type= 20 for income, 30 for expense, 			payment_type= int
+    def get_tot_inc_exp_by_month(self, payment_type, month):
+        current_date = datetime.now()
+        if payment_type == 20:
+            start_type = 0
+            end_type = 20
+        else:
+            start_type = 21
+            end_type = 30
+        if month == 0:
+            start_date = datetime.now() - timedelta(days=365)
+            end_date = datetime.now()
+        else:
+            start_date = datetime(current_date.year, int(month), 1)
+            if int(month) == 12:
+                end_date = datetime(int(current_date.year) + 1, 1, 1)
+            else:
+                end_date = datetime(current_date.year, int(month) + 1, 1)
+
+        result_list = [
+            int(i['amount']) for i in Database.find(
+                collection=self.payment,
+                query={
+                    "$and": [
+                        {'payment_type': {"$gte": start_type, "$lte": end_type}},
+                        {'payment_date': {"$gte": start_date, "$lte": end_date}}
+                    ]
+                }
+            ) if i is not None and i['amount'] is not None
+        ]
+        return sum(result_list)

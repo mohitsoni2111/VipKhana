@@ -2,18 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <link href="{{ url_for('static', filename='css/list_order.css') }}" rel="stylesheet">
+    <title>List of all orders</title>
+
+	<!-- Boot strap linking-->
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="{{ url_for('static', filename='js/list_order.js') }}"></script>
-    <title>List of all orders</title>
+
+	<!-- Custom CSS linking -->
+	<link href="{{ url_for('static', filename='css/list_order.css') }}" rel="stylesheet">
+
 </head>
 <body>
 <div class="container">
+
     <!-- Flashing messages -->
 	{% with messages = get_flashed_messages(with_categories=true) %}
-    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
         {% if messages %}
 			{% for category, message in messages %}
 				<div class="alert alert-warning alert-dismissible" role="alert">
@@ -26,17 +30,22 @@
 		{% endif %}
 	{% endwith %}
 
-	<!-- Rest of the content -->
-    This is your home Mr. {{first_name}}
-    <br>
+
+<!-- Rest of the content -->
+    This is your home Mr. {{first_name}}<br>
 
     <form action='/login' method='POST'>
         <input type="submit" class="btnSubmit" value="Home" >
-    </form><br><br>
+    </form><br>
 
 
+<!-- Page Heading -->
     <h2>{{header}}{{delivery_guy_name}}</h2>
+
+
+<!-- Data of order -->
     <table class="table table-bordered">
+        <!-- Table Header -->
         <thead class="thead-dark">
             <tr>
                 <th scope="col"> Order Id </th>
@@ -50,6 +59,7 @@
             </tr>
         </thead>
 
+        <!-- Order Data with status=2 -->
         {% for order in orders %}
         <tbody>
             <tr>
@@ -99,6 +109,8 @@
         <tbody>
         {% endfor %}
 
+
+        <!-- Orders with order status=3 -->
         {% for order in orders3 %}
         <tbody>
             <tr>
@@ -126,6 +138,8 @@
             </tr>
         <tbody>
         {% endfor %}
+
+        <!-- Orders with order status=4 -->
         {% for order in orders4 %}
         <tbody class="{{order['status']}}">
             <tr class="class4">
@@ -155,6 +169,20 @@
         {% endfor %}
 
     </table>
+
+
+
+
+
+
+<!-- Custom JS code -->
+<script type="text/javascript">
+	<!-- // Closing the flash messages -->
+	document.getElementById("close_flash_message").onclick = function() {
+		document.getElementById("close_flash_message").style.display = "none";
+}
+</script>
+<script src="{{ url_for('static', filename='js/list_order.js') }}"></script>
 
 
 

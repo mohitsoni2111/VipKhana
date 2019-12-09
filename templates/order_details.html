@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Order Details</title>
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+
+	<!-- Boot strap linking-->
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-    <script src="{{ url_for('static', filename='js/list_order.js') }}"></script>
-    <link href="{{ url_for('static', filename='css/order_details.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/order_details.js') }}"></script>
+
+	<!-- Custom CSS linking -->
+	<link href="{{ url_for('static', filename='css/order_details.css') }}" rel="stylesheet">
+
 </head>
 <body onload="changeClass({{order['status']}})">
 <div class="container">
+
+
     <!-- Flashing messages -->
 	{% with messages = get_flashed_messages(with_categories=true) %}
-    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
         {% if messages %}
 			{% for category, message in messages %}
 				<div class="alert alert-warning alert-dismissible" role="alert">
@@ -26,6 +30,7 @@
 			{% endfor %}
 		{% endif %}
 	{% endwith %}
+
 
 	<!-- Rest of the content -->
     This is your home Mr. {{first_name}}
@@ -116,5 +121,22 @@
 
     </table>
 </div>
+
+
+
+
+<!-- Custom JS code -->
+<script type="text/javascript">
+	<!-- CLosing the flash messages -->
+	document.getElementById("close_flash_message").onclick = function() {
+		document.getElementById("close_flash_message").style.display = "none";
+}
+
+</script>
+<script src="{{ url_for('static', filename='js/list_order.js') }}"></script>
+<script src="{{ url_for('static', filename='js/order_details.js') }}"></script>
+
+
+
 </body>
 </html>
