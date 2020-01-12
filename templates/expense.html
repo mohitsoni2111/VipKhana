@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/add_order.js') }}"></script>
+    <title>Adding Expense</title>
+</head>
+<body>
+<div class="container">
+    <!-- Flashing messages -->
+	{% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+        {% if messages %}
+			{% for category, message in messages %}
+				<div class="alert alert-warning alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+
+	<!-- Rest of the content -->
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+
+        <form action='/adding_expense' method='POST'>
+
+            <div class="form-group">
+                <label >Expense ID</label>
+                <input type="text" readonly class="form-control" value="{{expense_id}}" name="order_id">
+            </div>
+
+            <div class="form-group">
+                <label >Select Expense from list</label>
+                <select name="expen_id" id="expen_id" class="form-control" onChange="return setCustomerDetails({{customer_list}})">
+                    {% for expense in expense_list %}
+                        <option value="{{expense['_id']}}" id="{{ expense['expense_type'] }}">
+                            {{ expense['expense_type'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label >Quantity</label>
+                <input type="number" class="form-control" name="quantity" required>
+            </div>
+
+            <div class="form-group">
+                <label >Expense Remarks</label>
+                <input type="text" class="form-control" name="expense_remarks" required>
+            </div>
+
+            <div class="form-group">
+                <label >Select Locality from list</label>
+                <select name="loc_id" class="form-control" id="loc_id" onChange="return setLocalityDetails({{locality_list}})">
+                    {% for locality in locality_list %}
+                        <option value="{{locality['_id']}}" id="{{locality['_id']}}">{{ locality['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label >Locality</label>
+                <input type="text" class="form-control" name="locality" id="locality" required>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" class="btnSubmit" value="Add Order">
+            </div>
+
+        </form>
+    </div>
+    <div class="col-sm-3"></div>
+</div>
+</body>
+</html>

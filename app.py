@@ -1,4 +1,6 @@
 from werkzeug.utils import redirect
+
+from models.Expense import Expense
 from models.Order import Order
 from models.Address import Address
 from models.Customer import Customer
@@ -12,16 +14,18 @@ service.startup()
 app.secret_key = 'XhuhuADeiofioe2347298'
 app.permanent_session_lifetime = timedelta(minutes=70)
 status_enum = {
-        1: 'Order Received by Vip Khana',
-        2: 'Order assigned to delivery guy',
-        3: 'Tiffin received to customer and payment received to us',
-        4: 'Tiffin received to customer and payment not received to us',
-        5: 'Perfectly completed order',
-        6: 'Faulty tiffin received by Vip Khana',
-        7: 'Order cancelled by user',
-        8: 'Order cancelled by Vip Khana'
+    1: 'Order Received by Vip Khana',
+    2: 'Order assigned to delivery guy',
+    3: 'Tiffin received to customer and payment received to us',
+    4: 'Tiffin received to customer and payment not received to us',
+    5: 'Perfectly completed order',
+    6: 'Faulty tiffin received by Vip Khana',
+    7: 'Order cancelled by user',
+    8: 'Order cancelled by Vip Khana'
 
-    }
+}
+
+
 # #################################################################################################
 # 1. LOGIN & LOGOUT MODULE                                                                        #
 # #################################################################################################
@@ -57,6 +61,7 @@ def start():
     else:
         return redirect(url_for('home'))
 
+
 #
 # B. Login Method
 @app.route('/login', methods=['GET', 'POST'])
@@ -86,22 +91,19 @@ def login():
                 delivery_boy_list=service.get_delivery_boy_list()
             )
 
+
 #
 #
 #
 # B. Logout Method
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    if 'username' not in session:
-        flash('Please sign in first')
-        return render_template('index.html')
+    if request.method != 'POST':
+        return redirect(url_for('home'))
     else:
-        if request.method != 'POST':
-            return redirect(url_for('home'))
-        else:
-            session.pop('username', None)
-            flash('Successfully logged out')
-            return render_template('index.html')
+        session.pop('username', None)
+        flash('Successfully logged out')
+        return render_template('index.html')
 
 
 #
@@ -131,7 +133,6 @@ def adding_order():
     if request.method != 'POST':
         return redirect(url_for('home'))
     else:
-
         # Getting Locality
         ram = request.form['loc_id']
         if str(request.form['loc_id']) == '1.0' or int(request.form['loc_id']) == 1:
@@ -395,7 +396,7 @@ def order_to_payment():
         if payment_type == 1:
             amount = service.add_payment_order(order_id)
             if amount != 0:
-                message_on_flash = 'Payment recorded of '+ str(amount)
+                message_on_flash = 'Payment recorded of ' + str(amount)
                 flash(message_on_flash)
                 return redirect(url_for('list_order_stat2'))
             else:
@@ -426,5 +427,69 @@ def order_to_final():
                 return redirect(url_for('list_order_stat34'))
 
 
+@app.route('/add_payment', methods=['GET', 'POST'])
+def add_payment():
+    if request.method != 'POST':
+        return redirect(url_for('home'))
+    else:
+        phone_number = str(request.form['phone-number'])
+        return render_template(
+            'payment.html',
+            first_name=service.get_first_name(session['username']),
+            flag='after payment',
+            customer_name=service.get_first_name_of_customer(phone_number),
+            final_list1=service.check_phone_number(phone_number)
+        )
+
+
+@app.route('/add_expense', methods=['get', 'post'])
+def add_expense():
+    if request.method != 'POST':
+        return redirect(url_for('home'))
+    else:
+        render_template('expense.html',
+                        expense_id=service.get_sequence_value(6),
+                        locality_list=service.getlist(2),
+                        expense_list=service.add_expense(),
+                        first_name=service.get_first_name(session['username'])
+                        )
+
+
+@app.route('/adding_expense', methods=['GET', 'POST'])
+def adding_expense():
+    if request.method != 'POST':
+        return redirect(url_for('home'))
+    else:
+        # Getting Locality
+        if str(request.form['loc_id']) == '1.0' or int(request.form['loc_id']) == 1:
+            locality_id = service.add_locality(str(request.form['locality']).lower())
+            if locality_id == -1:
+                flash("Error in adding a new locality, contact admin for this.")
+                return render_template(
+                    "home.html",
+                    first_name=service.get_first_name(session['username']),
+                )
+        else:
+            locality_id = int(str(request.form['loc_id']))
+
+        # Getting Expense Details
+        if str(request.form['expen_id']) == '1.0' or int(request.form['expen_id']) == 1:
+            expense = Expense(
+                expense_id=service.get_sequence_value(6),
+                quantity=str(request.form['quantity']),
+                price_of_one=str(request.form['price_of_one']),
+                remarks=str(request.form['customer_remarks'])
+            )
+            expense_id = service.add_customer(expense.json())
+            if expense_id == -1:
+                flash('Error in adding a new expense, contact admin for this.')
+                return render_template(
+                    'home.html',
+                    first_name=service.get_first_name(session['username']),
+                )
+        else:
+            expense_id = int(request.form['expen_id'])
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

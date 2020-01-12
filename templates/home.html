@@ -60,6 +60,7 @@
     </form><br>
 
     <form action='/delivery_details' method='POST'>
+        <!-- check dropdown mohit-->
         <select name="delboy_id">
             {% for boy in delivery_boy_list %}
                 <option value="{{boy['username']}}">
@@ -79,9 +80,17 @@
 
 </div>
 
+<!-- By mohit -->
+<form action="/add_payment" method="post" >
+    Add income:
+    <input type="number" name="phone-number" placeholder="Enter phone number" maxlength="10" required>
+    <input type="submit" value="Enter">
+</form><br>
 
-
-
+<form action="/add_expense" method="post">
+    Add expense:
+    <input type="submit" value="Add expense">
+</form>
 
 <!-- Custom JS code -->
 <script type="text/javascript">

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Income addition</title>
+
+	<!-- Boot strap linking-->
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+	<!-- Custom CSS linking -->
+	<link href="{{ url_for('static', filename='css/list_order.css') }}" rel="stylesheet">
+
+</head>
+<body>
+<div class="container">
+
+    <!-- Flashing messages -->
+	{% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+			{% for category, message in messages %}
+				<div class="alert alert-warning alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+
+
+<!-- Rest of the content -->
+    This is your home Mr. {{first_name}}<br>
+
+    <form action='/login' method='POST'>
+        <input type="submit" class="btnSubmit" value="Home" >
+    </form><br>
+
+
+<!-- Page Heading -->
+    <h2>{{header}}{{customer_name}}</h2>
+
+
+<!-- Data of order -->
+    <table class="table table-bordered">
+        <!-- Table Header -->
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col"> Order Id </th>
+                <th scope="col"> Order Date </th>
+                <th scope="col"> payment Date </th>
+                <th scope="col"> Number of tiffin </th>
+                <th scope="col"> Amount paid then </th>
+                <th scope="col"> Tiffin protected? </th>
+                <th scope="col"> charges extra if any </th>
+                <th scope="col"> Total amount to pay </th>
+                <th scope="col"> Settle </th>
+            </tr>
+        </thead>
+
+        <!-- Order Data with status=2 -->
+        {% for final_list in final_list1 %}
+        <tbody>
+            <tr>
+                <th scope="row">{{ final_list['order_id'] }}</th>
+                <td>{{ final_list['order_date'] }}</td>
+                <td>{{ final_list['payment_date'] }}</td>
+                <td>{{ final_list['quantity'] }}</td>
+                <td>{{ final_list['amount'] }}</td>
+                <td>
+                    {% if flag == "after payment" %}
+                        <form method='POST'>
+                            <select name="order_type">
+                                <option value="1">Tiffin is back without damage</option>
+                                <option value="2">Tiffin is back with damage</option>
+                            </select>
+                            <input type="hidden" name="order_id" value="{{ final_list['order_id'] }}">
+                        </form>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post">
+                        <input type="number" name="extra_charges" value="0">
+                    </form>
+                </td>
+                <td>
+                    <form method="post">
+                        <input type="number" name="total_amount" value="0">
+                    </form>
+                </td>
+                <td>
+                    <form action='/order_to_final' method="post">
+                        <input type="submit" class="btnSubmit" value="Assign" >
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+
+
+<!-- Custom JS code -->
+<script type="text/javascript">
+	<!-- // Closing the flash messages -->
+	document.getElementById("close_flash_message").onclick = function() {
+		document.getElementById("close_flash_message").style.display = "none";
+}
+</script>
+<script src="{{ url_for('static', filename='js/list_order.js') }}"></script>
+
+</div>
+
+</body>
+</html>

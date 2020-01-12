@@ -46,6 +46,8 @@ class Service:
     delivery_seq_table = 'seq_deliveryid'
     # flag= 36
     payment_seq_table = 'seq_paymentid'
+    # flag = 37
+    expense_seq_table = 'seq_expenseid'
     #
     #
     # Variables
@@ -101,7 +103,7 @@ class Service:
     #
     def get_first_name(self, username):
         result = self.get_element_by_id('first_name', username, 6)
-        return '' if result is None else str(result)
+        return None if result is None else str(result)
 
     #
     #
@@ -303,15 +305,18 @@ class Service:
     def get_delivery_boy_list(self):
         boy_list = []
         result = Database.find(collection=self.delivery_boy, query={})
+        # print(*result)
         if result is not None:
             for boy in result:
-                if boy is not None and boy['_id'] is not None and boy['first_name'] is not None:
+                if boy is not None and boy['first_name'] is not None:
+                    # may use dictionary
                     boy_list.append(
                         {
                             'username': int(boy['_id']),
                             'name': str(boy['first_name'])
                         }
                     )
+        print(boy_list)
         return boy_list
 
     def get_delivery_boy_name(self, order_id):
@@ -396,7 +401,7 @@ class Service:
         quantity = self.get_element_by_id('quantity', order_id, 1)
         rate = self.get_db_variable('tiffin_rate')
         if quantity is not None and rate is not None:
-            amount = int(rate)*int(quantity)
+            amount = int(rate) * int(quantity)
         result = Database.insert(
             collection=self.payment,
             query={
@@ -437,6 +442,8 @@ class Service:
             table = self.customer_seq_table
         elif flag == 5:
             table = self.delivery_seq_table
+        elif flag == 6:
+            table = self.expense_seq_table
         else:
             table = self.payment_seq_table
         result = Database.find_one(collection=table, query={})
@@ -457,6 +464,8 @@ class Service:
             table = self.customer_seq_table
         elif flag == 5:
             table = self.delivery_seq_table
+        elif flag == 6:
+            table = self.expense_seq_table
         else:
             table = self.payment_seq_table
         Database.update(collection=table, query={}, new_data={'$inc': {'num': 1}})
@@ -473,6 +482,8 @@ class Service:
             table = self.customer_seq_table
         elif flag == 5:
             table = self.delivery_seq_table
+        elif flag == 6:
+            table = self.expense_seq_table
         else:
             table = self.payment_seq_table
         Database.update(collection=table, query={}, new_data={'$inc': {'num': -1}})
@@ -536,11 +547,14 @@ class Service:
             table = self.delivery_seq_table
         elif flag == 36:
             table = self.payment_seq_table
+        elif flag == 37:
+            table = self.expense_seq_table
         else:
             table = self.payment_seq_table
         result = Database.find_one(collection=table, query={'_id': id_value})
         if result is not None:
             return result[element] if result[element] is not None else None
+            # To be tested by mohit
         else:
             return None
 
@@ -596,7 +610,7 @@ class Service:
         else:
             return None
 
-# type= 20 for income, 30 for expense, 			payment_type= int
+    # type= 20 for income, 30 for expense, 			payment_type= int
     def get_tot_inc_exp_by_month(self, payment_type, month):
         current_date = datetime.now()
         if payment_type == 20:
@@ -627,3 +641,61 @@ class Service:
             ) if i is not None and i['amount'] is not None
         ]
         return sum(result_list)
+
+    def check_phone_number(self, phone_number):
+        result = Database.find_one(collection=self.customer, query={'phone_number': phone_number})
+        if result is not None:
+            final_list = []
+            customer_id = result['_id']
+            result2 = [int(i['_id']) for i in Database.find(collection=self.order,
+                                                            query={"customer_id": customer_id}) if i is not None]
+            # print(result2)
+            result4 = [i for i in Database.find(collection=self.order,
+                                                query={"customer_id": customer_id}) if i is not None]
+            # if len(result4) != 0:
+            #     for payment in sorted(result4, key=lambda i: int(i['_id'])):
+            #         final_list.append(
+            #             {
+            #                 'order_date': payment['order_date'],
+            #                 'quantity': payment['quantity'],
+            #             })
+            # print(result4)
+            query2 = {'order_id': {'$in': result2}}
+            result3 = [i for i in Database.find(collection=self.payment, query=query2) if i is not None]
+            if len(result3) != 0:
+                for payment in sorted(result3, key=lambda i: int(i['_id'])):
+                    if len(result4) != 0:
+                        for element in sorted(result4, key=lambda i: int(i['_id'])):
+                            if element['quantity']*400 == payment['amount']:
+                                final_list.append(
+                                    {
+                                        'payment_date': payment['payment_date'],
+                                        'amount': payment['amount'],
+                                        'order_id': payment['order_id'],
+                                        'order_date': element['order_date'],
+                                        'quantity': element['quantity'],
+                                    })
+            # print(final_list)
+            return final_list
+        else:
+            return None
+
+    def get_first_name_of_customer(self, phone_number):
+        result = Database.find_one(collection=self.customer, query={'phone_number': phone_number})
+        if result is not None:
+            customer_name = result['first_name']
+        else:
+            return None
+        return customer_name
+
+    def add_expense(self, expense):
+        expense_id = self.get_sequence_value(6)
+        if expense_id != -1:
+            result = Database.insert(collection=self.customer, query=expense)
+            if result is not None:
+                self.set_sequence_value(6)
+                return expense_id
+            else:
+                return -1
+        else:
+            return -1
