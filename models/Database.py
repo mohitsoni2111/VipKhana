@@ -4,8 +4,8 @@ import pymongo
 
 
 class Database(object):
-    url = 'mongodb://127.0.0.1:27017/'
-    # url = 'mongodb+srv://vipKhana:vipKhana@clustervipkhana-hfwa8.mongodb.net/test?retryWrites=true&w=majority'
+    # url = 'mongodb://127.0.0.1:27017/'
+    url = 'mongodb+srv://vipKhana:vipKhana@clustervipkhana-hfwa8.mongodb.net/test?retryWrites=true&w=majority'
     db = None
 
     # --------------------------------DATABASE INITIALIZE METHOD--------------------------------#
