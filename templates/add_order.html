@@ -6,7 +6,14 @@
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 	<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <script src="{{ url_for('static', filename='js/add_order.js') }}"></script>
-    <title>Adding Order</title>
+    <title>
+        {% if flag == "order" %}
+            Adding Order
+        {% endif %}
+        {% if flag == "expense" %}
+            Adding Expense
+        {% endif %}
+    </title>
 </head>
 <body>
 <div class="container">
@@ -28,111 +35,184 @@
 	<!-- Rest of the content -->
     <div class="col-sm-3"></div>
     <div class="col-sm-6">
+        {% if flag == "order" %}
+            <form action='/adding_order' method='POST'>
 
-        <form action='/adding_order' method='POST'>
+                <div class="form-group">
+                    <label >Order ID</label>
+                    <input type="text" readonly class="form-control" value="{{order_id}}" name="order_id">
+                </div>
+
+                <div class="form-group">
+                    <label>Select Customer from list</label>
+                    <select name="cust_id" id="cust_id" class="form-control" onChange="return setCustomerDetails({{customer_list}})">
+                        {% for customer in customer_list %}
+                            <option value="{{customer['_id']}}" id="{{ customer['phone_number'] }}">
+                                {{ customer['first_name'] }} {{ customer['last_name'] }} {{ customer['phone_number'] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label >Phone Number</label>
+                    <input type="text" class="form-control" name="phone_number" id="phone_number" maxlength="10" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Name</label>
+                    <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name"  required>
+                    <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Gender</label>
+                    <input type="radio" name="gender" value="male" id="male" class="custom-control-input" checked="checked">
+                    <label class="custom-control-label">Male</label>
+                    <input type="radio" name="gender" value="female" id="female" class="custom-control-input">
+                    <label class="custom-control-label">Female</label>
+                </div>
+
+                <div class="form-group">
+                    <label >Customer Remarks</label>
+                    <input type="text" class="form-control" name="customer_remarks" id="customer_remarks" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Select Address from list</label>
+                    <select name="adr_id" class="form-control" id="adr_id" onChange="return setAddressDetails({{address_list}})">
+                        {% for address in address_list %}
+                            <option value="{{address['_id']}}" id="{{address['_id']}}">
+                                {{ address['line1'] }}, {{ address['line2'] }}, {{ address['line3'] }}
+                            </option>onchange
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label >Address Line 1</label>
+                    <input type="text" class="form-control" name="line1" id="line1" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Address Line 2</label>
+                    <input type="text" class="form-control" name="line2" id="line2" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Address Line 3</label>
+                    <input type="text" class="form-control" name="line3" id="line3" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Select Locality from list</label>
+                    <select name="loc_id" class="form-control" id="loc_id" onChange="return setLocalityDetails({{locality_list}})" >
+                        {% for locality in locality_list %}
+                            <option value="{{locality['_id']}}" id="{{locality['_id']}}">{{ locality['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label >Locality</label>
+                    <input type="text" class="form-control" name="locality" id="locality" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Address Remarks</label>
+                    <input type="text" class="form-control" name="address_remarks" id="address_remarks" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Quantity of tiffin</label>
+                    <input type="text" class="form-control" name="quantity" required>
+                </div>
+
+                <div class="form-group">
+                    <label >Order Remarks</label>
+                    <input type="text" class="form-control" name="order_remarks" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" class="btnSubmit" value="Add Order">
+                </div>
+
+            </form>
+        {% endif %}
+        {% if flag == "expense" %}
+        <form action='/adding_expense' method='POST'>
 
             <div class="form-group">
-                <label >Order ID</label>
-                <input type="text" readonly class="form-control" value="{{order_id}}" name="order_id">
+                <label >Expense ID</label>
+                <input type="text" readonly class="form-control" value="{{expense_id}}" name="expense_id">
             </div>
 
+<!--
+            <div id="ifExpense">
+                <select name="expense_class">
+                    {% for key, value in expense_list_class %}
+                        <option value="{{ key }}"> {{ value }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+-->
+
             <div class="form-group">
-                <label >Select Customer from list</label>
-                <select name="cust_id" id="cust_id" class="form-control" onChange="return setCustomerDetails({{customer_list}})">
-                    {% for customer in customer_list %}
-                        <option value="{{customer['_id']}}" id="{{ customer['phone_number'] }}">
-                            {{ customer['first_name'] }} {{ customer['last_name'] }} {{ customer['phone_number'] }}
-                        </option>
+                <label >Select Expense Class from list</label>
+                <select name="expense_class_id" id="expense_class_id" class="form-control" onChange="return setExpenseClassDetails({{expense_class_list}})" >
+                    {% for expense in expense_class_list %}
+                        <option value="{{expense['_id']}}" id="{{expense['_id']}}"> {{ expense['var_value'] }} </option>
                     {% endfor %}
                 </select>
             </div>
 
             <div class="form-group">
-                <label >Phone Number</label>
-                <input type="text" class="form-control" name="phone_number" id="phone_number" maxlength="10" required>
+                <label >Expense Class</label>
+                <input type="text" class="form-control" name="expense_class" id="expense_class" required>
             </div>
 
-            <div class="form-group">
-                <label >Name</label>
-                <input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name"  required>
-                <input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name" required>
-            </div>
-
-            <div class="form-group">
-                <label >Gender</label>
-                <input type="radio" name="gender" value="male" id="male" class="custom-control-input" checked="checked">
-                <label class="custom-control-label">Male</label>
-                <input type="radio" name="gender" value="female" id="female" class="custom-control-input">
-                <label class="custom-control-label">Female</label>
-            </div>
-
-            <div class="form-group">
-                <label >Customer Remarks</label>
-                <input type="text" class="form-control" name="customer_remarks" id="customer_remarks" required>
-            </div>
-
-            <div class="form-group">
-                <label >Select Address from list</label>
-                <select name="adr_id" class="form-control" id="adr_id" onChange="return setAddressDetails({{address_list}})">
-                    {% for address in address_list %}
-                        <option value="{{address['_id']}}" id="{{address['_id']}}">
-                            {{ address['line1'] }}, {{ address['line2'] }}, {{ address['line3'] }}
-                        </option>
+            <div class="form-group" id = "expense_type_id">
+                <label >Select Expense Type from list</label>
+                <select name="expense_type_id" id="expense_type_id" class="form-control" onChange="return setExpenseTypeDetails({{expense_type_list_10}})" >
+                    {% for expense in expense_type_list_10 %}
+                        <option value="{{expense['_id']}}" id="{{ expense['_id'] }}"> {{ expense['var_value'] }} </option>
                     {% endfor %}
                 </select>
             </div>
 
             <div class="form-group">
-                <label >Address Line 1</label>
-                <input type="text" class="form-control" name="line1" id="line1" required>
+                <label >Expense Type</label>
+                <input type="text" class="form-control" name="expense_type" id="expense_type" required>
             </div>
 
             <div class="form-group">
-                <label >Address Line 2</label>
-                <input type="text" class="form-control" name="line2" id="line2" required>
+                <label >Quantity</label>
+                <input type="number" class="form-control" name="quantity" required>
             </div>
 
             <div class="form-group">
-                <label >Address Line 3</label>
-                <input type="text" class="form-control" name="line3" id="line3" required>
+                <label >Price of one</label>
+                <input type="number" class="form-control" id =  name="Price_of_one" required>
             </div>
 
             <div class="form-group">
-                <label >Select Locality from list</label>
-                <select name="loc_id" class="form-control" id="loc_id" onChange="return setLocalityDetails({{locality_list}})">
-                    {% for locality in locality_list %}
-                        <option value="{{locality['_id']}}" id="{{locality['_id']}}">{{ locality['name'] }}</option>
-                    {% endfor %}
-                </select>
+                <label >Total Expenditure</label>
+                <input type="number" class="form-control" name="total_expenditure" value="">
             </div>
 
             <div class="form-group">
-                <label >Locality</label>
-                <input type="text" class="form-control" name="locality" id="locality" required>
+                <label >Expense Remarks</label>
+                <input type="text" class="form-control" name="expense_remarks" required>
             </div>
 
             <div class="form-group">
-                <label >Address Remarks</label>
-                <input type="text" class="form-control" name="address_remarks" id="address_remarks" required>
-            </div>
-
-            <div class="form-group">
-                <label >Quantity of tiffin</label>
-                <input type="text" class="form-control" name="quantity" required>
-            </div>
-
-            <div class="form-group">
-                <label >Order Remarks</label>
-                <input type="text" class="form-control" name="order_remarks" required>
-            </div>
-
-            <div class="form-group">
-                <input type="submit" class="btnSubmit" value="Add Order">
+                <input type="submit" class="btnSubmit" value="Add Expense">
             </div>
 
         </form>
+        {% endif %}
     </div>
-    <div class="col-sm-3"></div>
 </div>
 </body>
 </html>

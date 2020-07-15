@@ -123,7 +123,8 @@ def add_order():
             order_id=service.get_sequence_value(1),
             locality_list=service.getlist(2),
             address_list=service.getlist(3),
-            customer_list=service.getlist(4),
+            customer_list=service.getlist(5),
+            flag='order',
             first_name=service.get_first_name(session['username'])
         )
 
@@ -446,13 +447,25 @@ def add_payment():
 def add_expense():
     if request.method != 'POST':
         return redirect(url_for('home'))
+    elif str(request.form['isExpense']):
+        # Expense option is selected
+        return render_template('add_order.html',
+                               expense_id=service.get_sequence_value(6),
+                               expense_class_list=service.getlist(4),
+                               expense_type_list_10=service.getlist(5),
+                               expense_type_list_11=service.getlist(6),
+                               flag='expense',
+                               first_name=service.get_first_name(session['username'])
+                               )
     else:
-        render_template('expense.html',
-                        expense_id=service.get_sequence_value(6),
-                        locality_list=service.getlist(2),
-                        expense_list=service.add_expense(),
-                        first_name=service.get_first_name(session['username'])
-                        )
+        # Income option is selected
+        # TO DO LATER
+        return render_template('add_order.html',
+                               income_id=service.get_sequence_value(6),
+                               expense_list=service.getlist(4),
+                               flag='income',
+                               first_name=service.get_first_name(session['username'])
+                               )
 
 
 @app.route('/adding_expense', methods=['GET', 'POST'])
@@ -460,17 +473,17 @@ def adding_expense():
     if request.method != 'POST':
         return redirect(url_for('home'))
     else:
-        # Getting Locality
-        if str(request.form['loc_id']) == '1.0' or int(request.form['loc_id']) == 1:
-            locality_id = service.add_locality(str(request.form['locality']).lower())
-            if locality_id == -1:
-                flash("Error in adding a new locality, contact admin for this.")
+        # Getting Expense Class
+        if str(request.form['expense_class_id']) == '1.0' or int(request.form['expense_class_id']) == 1:
+            expense_class_id = service.add_expense_class(str(request.form['expense_class']).lower())
+            if expense_class_id == -1:
+                flash("Error in adding a new Expense Class, contact admin for this.")
                 return render_template(
                     "home.html",
                     first_name=service.get_first_name(session['username']),
                 )
         else:
-            locality_id = int(str(request.form['loc_id']))
+            expense_class_id = int(str(request.form['expense_class_id']))
 
         # Getting Expense Details
         if str(request.form['expen_id']) == '1.0' or int(request.form['expen_id']) == 1:

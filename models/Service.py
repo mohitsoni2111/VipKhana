@@ -1,4 +1,7 @@
 from datetime import datetime, timedelta
+
+from django import db
+
 from models.Database import Database
 from models.Order import Order
 
@@ -31,6 +34,8 @@ class Service:
     payment = 'payment'
     # flag= 11
     order_history = 'order_history'
+    # flag=12
+    db_variables = 'variables'
     #
     #
     # Sequences Names with flag value
@@ -443,7 +448,7 @@ class Service:
         elif flag == 5:
             table = self.delivery_seq_table
         elif flag == 6:
-            table = self.expense_seq_table
+            table = self.db_variables
         else:
             table = self.payment_seq_table
         result = Database.find_one(collection=table, query={})
@@ -502,15 +507,86 @@ class Service:
             table = self.locality
         elif flag == 3:
             table = self.address
+        elif flag == 4 or 5 or 6:
+            table = self.db_variables
         else:
             table = self.customer
         result_list = []
+        list2 = []
+        # if flag == 4:
+        #     # Easy query also available but need to find
+        #     query2 = {$and:[{'_id' : {$not : /:0:/}}, {$and : [{'_id' : /^2/}, {'_id' : /0$/}]}]}
+        #     result = Database.find(collection=table, query=query2)
+        # else:
         result = Database.find(collection=table, query={})
         if result is not None:
             for element in result:
                 if element is not None:
                     result_list.append(element)
+        if flag == 4:
+            for element in result_list:
+                for key, value in element.items():
+                    if key == '_id':
+                        a = value.split(':')
+                        if a[0] == '2' and a[1] != '0' and a[2] == '0':
+                            list2.append(element)
+            result_list = list2
+
+        if flag == 5:
+            for element in result_list:
+                for key, value in element.items():
+                    if key == '_id':
+                        a = value.split(':')
+                        if a[0] == '2' and a[1] == '10' and a[2] != '0':
+                            list2.append(element)
+            result_list = list2
+
+        if flag == 6:
+            for element in result_list:
+                for key, value in element.items():
+                    if key == '_id':
+                        a = value.split(':')
+                        if a[0] == '2' and a[1] == '11' and a[2] != '0':
+                            list2.append(element)
+            result_list = list2
         return result_list
+
+    def find_expense_seq_no(self, flag):
+        result_list = []
+        result = Database.find(collection=self.db_variables, query={})
+        if result is not None:
+            for element in result:
+                if element is not None:
+                    result_list.append(element)
+
+        for element in result_list:
+            for key, value in element.items():
+                if key == '_id':
+                    a = value.split(':')
+                    if flag == 1 and a[1] and a[2] == '0':
+                            return a[0]
+                    elif flag == 2 and a[0] == '2' and a[1] != '0' and a[2] == '0':
+                            return max(a[1])
+
+        if flag == 2:
+            for element in result_list:
+                for key, value in element.items():
+                    if key == '_id':
+                        a = value.split(':')
+                        if a[0] == '2' and a[1] == '10' and a[2] != '0':
+                            list2.append(element)
+            result_list = list2
+
+        if flag == 3:
+            for element in result_list:
+                for key, value in element.items():
+                    if key == '_id':
+                        a = value.split(':')
+                        if a[0] == '2' and a[1] == '11' and a[2] != '0':
+                            list2.append(element)
+            result_list = list2
+        return result_list
+
 
     def get_element_by_id(self, element, id_value, flag):
         if flag == 1:
@@ -535,6 +611,8 @@ class Service:
             table = self.payment
         elif flag == 11:
             table = self.order_history
+        elif flag == 12:
+            table = self.db_variables
         elif flag == 31:
             table = self.order_seq_table
         elif flag == 32:
@@ -560,7 +638,7 @@ class Service:
 
     def get_db_variable(self, variable_name):
         result = Database.find_one(collection='variables', query={'_id': variable_name})
-        return result['value'] if result is not None else None
+        return result['var_value'] if result is not None else None
 
     def map_order_to_tiffin(self, order_id, tiffin_number):
         Database.update(
@@ -675,7 +753,7 @@ class Service:
                                         'order_date': element['order_date'],
                                         'quantity': element['quantity'],
                                     })
-            # print(final_list)
+            print('FINAL LISTTTTT' , final_list)
             return final_list
         else:
             return None
@@ -688,14 +766,21 @@ class Service:
             return None
         return customer_name
 
-    def add_expense(self, expense):
-        expense_id = self.get_sequence_value(6)
-        if expense_id != -1:
-            result = Database.insert(collection=self.customer, query=expense)
-            if result is not None:
-                self.set_sequence_value(6)
-                return expense_id
-            else:
-                return -1
-        else:
-            return -1
+    # def add_expense_class(self, expense_class):
+    #     if Database.find_one(collection=self.db_variables, query={"var_value": expense_class}) is None:
+    #         expense_class_id = self.get_sequence_value(6)
+    #         if expense_class_id != -1:
+    #             result = Database.insert(collection=self.db_variables,
+    #                                      query={"_id": locality_id, "var_value": expense_class}
+    #                                      )
+    #             if result is not None:
+    #                 self.set_sequence_value(2)
+    #                 return locality_id
+    #             else:
+    #                 return -1
+    #         else:
+    #             return -1
+    #     else:
+    #         return int(Database.find_one(collection=self.locality, query={"name": locality_name})['_id'])
+    #
+    # def find_expense_class

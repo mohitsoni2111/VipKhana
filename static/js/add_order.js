@@ -90,7 +90,6 @@ function setAddressDetails(address){
 
 
 function setLocalityDetails(locality_list){
-
     var ddl = document.getElementById("loc_id");
     var selectedOption = ddl.options[ddl.selectedIndex];
     var locality_id = selectedOption.getAttribute("id");
@@ -108,5 +107,51 @@ function setLocalityDetails(locality_list){
         if (obj._id == locality_id){
             locality.value = "";
             document.getElementById("locality").readOnly = false;
+        }
+}
+
+
+function setExpenseClassDetails(expense_class_list){
+
+    var ddl = document.getElementById("expense_class_id");
+    var selectedOption = ddl.options[ddl.selectedIndex];
+    var expen_class_id = selectedOption.getAttribute("id");
+
+    var expense_class = document.getElementById("expense_class");
+
+    for(var i = 1; i < expense_class_list.length; i++) {
+        var obj = expense_class_list[i];
+        if (obj._id == expen_class_id){
+            expense_class.value = obj.name;
+            document.getElementById("expense_class").readOnly = true;
+            document.getElementById('expense_type_id').style.display = "block";
+        }
+    }
+    var obj = expense_class_list[0];
+        if (obj._id == expen_class_id){
+            expense_class.value = "";
+            document.getElementById("expense_class").readOnly = false;
+        }
+}
+
+function setExpenseTypeDetails(expense_type_list_10){
+
+    var ddl = document.getElementById("expense_type_id");
+    var selectedOption = ddl.options[ddl.selectedIndex];
+    var expen_type_id = selectedOption.getAttribute("id");
+
+    var expense_type = document.getElementById("expense_type");
+
+    for(var i = 1; i < expense_type_list_10.length; i++) {
+        var obj = expense_type_list_10[i];
+        if (obj._id == expen_type_id){
+            expense_type.value = obj.name;
+            document.getElementById("expense_type").readOnly = true;
+        }
+    }
+    var obj = expense_type_list_10[0];
+        if (obj._id == expen_type_id){
+            expense_type.value = "";
+            document.getElementById("expense_type").readOnly = false;
         }
 }

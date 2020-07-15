@@ -80,16 +80,19 @@
 
 </div>
 
-<!-- By mohit -->
+<!-- By mohit
 <form action="/add_payment" method="post" >
     Add income:
     <input type="number" name="phone-number" placeholder="Enter phone number" maxlength="10" required>
     <input type="submit" value="Enter">
 </form><br>
-
+-->
 <form action="/add_expense" method="post">
-    Add expense:
-    <input type="submit" value="Add expense">
+     <select name="isExpense">
+         <option value="True">Expense</option>
+         <option value="False">Income</option>
+     </select>
+    <input type="submit" class="btnSubmit" value="Add">
 </form>
 
 <!-- Custom JS code -->
